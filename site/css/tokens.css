@@ -1,0 +1,39 @@
+/* Design tokens. Provisional values from visual inspection; T1 replaces them
+   with exact hex values extracted from the Desktop SVGs. */
+:root {
+  /* Brand */
+  --c-navy: #0b2a40;          /* headlines */
+  --c-ink: #1a2230;           /* body / nav text */
+  --c-mint: #3ddc97;          /* logo, active step dot */
+  --c-teal: #44b3a2;          /* ROI boxes, RGB box stroke (exact, from D14) */
+  --c-chip: #0f7a62;          /* vital chips */
+  --c-magenta: #b0186e;       /* gradient accent end */
+  --c-plum: #6b1d4a;          /* eyebrow label */
+  --c-orange: #f59e0b;        /* light beams (exact, from D16) */
+  --c-r: #ef4444;             /* R channel */
+  --c-g: #0f8a6c;             /* G channel */
+  --c-b: #0ea5e9;             /* B channel */
+  --c-sky: #dbe7f5;           /* soft-blue photo background */
+  --c-card: #d6f5ee;          /* vital cards (D19) */
+  --c-panel: #f2f3f5;         /* empty calculation rectangle */
+  --c-white: #ffffff;
+
+  --grad-accent: linear-gradient(90deg, var(--c-mint) 0%, #3b5f6b 45%, var(--c-magenta) 100%);
+
+  /* Type */
+  --f-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --f-body: "Inter", system-ui, sans-serif;
+
+  /* Layout */
+  --gutter: clamp(16px, 5.5vw, 80px);
+  --nav-h: 76px;
+  --radius-pill: 999px;
+  --radius-card: 20px;
+
+  /* Debug */
+  --debug-bg: rgba(10, 20, 30, .82);
+}
+
+@media (max-width: 899px) {
+  :root { --nav-h: 60px; }
+}

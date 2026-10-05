@@ -1,0 +1,107 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--c-sky);
+  color: var(--c-ink);
+  font-family: var(--f-body);
+  overflow-x: hidden;
+}
+img, svg, canvas { display: block; max-width: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--c-mint); outline-offset: 3px; }
+
+/* ---------- Scroll track + pinned stage ---------- */
+/* --track-units is set by main.js from config.js (sum of scene units). */
+.track {
+  position: relative;
+  height: calc((var(--track-units, 14) + 1) * 100svh);
+}
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Every scene owns one full-stage layer; scenes stack in DOM order. */
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.layer > * { pointer-events: auto; }
+
+/* ---------- Nav (placeholder; real styling in T2) ---------- */
+.nav {
+  position: fixed;
+  z-index: 50;
+  top: clamp(12px, 3.2vh, 33px);
+  left: var(--gutter);
+  right: var(--gutter);
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, .55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.nav__logo {
+  font: 800 28px/1 var(--f-display);
+  color: var(--c-mint);
+  text-decoration: none;
+}
+.nav__links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font: 500 15px/1 var(--f-body);
+}
+.nav__links a { text-decoration: none; }
+@media (max-width: 899px) {
+  .nav { padding: 0 20px; }
+  .nav__links { display: none; }
+}
+
+/* ---------- Debug overlay ---------- */
+.debug {
+  position: fixed;
+  z-index: 100;
+  right: 12px;
+  bottom: 12px;
+  width: 260px;
+  max-height: calc(100svh - 24px);
+  overflow: auto;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--debug-bg);
+  color: #e6f1f5;
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.debug[hidden] { display: none; }
+.debug__now { font-size: 13px; margin-bottom: 8px; }
+.debug__now b { color: var(--c-mint); }
+.debug__bar { height: 4px; background: rgba(255,255,255,.15); border-radius: 2px; margin: 4px 0 10px; }
+.debug__bar > i { display: block; height: 100%; width: 0; background: var(--c-mint); border-radius: 2px; }
+.debug ol { margin: 0; padding: 0; list-style: none; }
+.debug li button {
+  all: unset;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 2px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.debug li button:hover { background: rgba(255,255,255,.08); }
+.debug li.is-active button { background: rgba(61,220,151,.22); color: #fff; }
+@media (max-width: 899px) {
+  .debug { width: 180px; padding: 8px 10px; font-size: 11px; }
+  .debug ol { display: none; }
+}

@@ -1,0 +1,27 @@
+/* Per-scene styles. Each scene adds a block scoped to its layer: .layer--<id> */
+
+/* ---------- Placeholder scenes (T0). Delete a scene's placeholder use once
+   its real module exists; remove this block entirely when none remain. ---------- */
+.ph {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--c-navy);
+  opacity: 0;
+}
+.ph__card {
+  padding: 32px 40px;
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, .7);
+  box-shadow: 0 10px 40px rgba(11, 42, 64, .12);
+}
+.ph__kind { font: 600 12px/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--c-plum); }
+.ph__title { font: 800 clamp(32px, 5vw, 64px)/1.05 var(--f-display); margin: 10px 0 6px; }
+.ph__frame { font: 500 15px/1.3 var(--f-body); color: var(--c-ink); }
+.ph--transition .ph__card { background: rgba(245, 158, 11, .14); }
+
+/* ---------- Reduced motion (full alternative built in T14) ---------- */
+.is-reduced .track { height: auto; }
+.is-reduced .stage { position: static; height: auto; overflow: visible; }
+.is-reduced .layer { position: relative; inset: auto; min-height: 100svh; }
+.is-reduced .ph { opacity: 1; }
