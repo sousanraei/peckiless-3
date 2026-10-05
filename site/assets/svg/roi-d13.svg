@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1024" fill="none">
+  <title>D13 regions of interest</title>
+  <rect x="773.5" y="300.5" width="132" height="62" rx="9.5" stroke="#44B3A2" stroke-width="3" id="roi-forehead" />
+  <rect x="755.5" y="433.5" width="81" height="62" rx="9.5" stroke="#44B3A2" stroke-width="3" id="roi-cheek-left" />
+  <rect x="911.5" y="407.5" width="81" height="62" rx="9.5" stroke="#44B3A2" stroke-width="3" id="roi-cheek-right" />
+</svg>

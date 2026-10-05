@@ -1,24 +1,52 @@
-/* Design tokens. Provisional values from visual inspection; T1 replaces them
-   with exact hex values extracted from the Desktop SVGs. */
+/* Design tokens. Exact hex values extracted from the Desktop SVGs by
+   tools/extract.py (full list with frames: assets/palette.json). The frame
+   each value comes from is noted; "all" = every frame D9–D19. */
 :root {
-  /* Brand */
-  --c-navy: #0b2a40;          /* headlines */
-  --c-ink: #1a2230;           /* body / nav text */
-  --c-mint: #3ddc97;          /* logo, active step dot */
-  --c-teal: #44b3a2;          /* ROI boxes, RGB box stroke (exact, from D14) */
-  --c-chip: #0f7a62;          /* vital chips */
-  --c-magenta: #b0186e;       /* gradient accent end */
-  --c-plum: #6b1d4a;          /* eyebrow label */
-  --c-orange: #f59e0b;        /* light beams (exact, from D16) */
-  --c-r: #ef4444;             /* R channel */
-  --c-g: #0f8a6c;             /* G channel */
-  --c-b: #0ea5e9;             /* B channel */
-  --c-sky: #dbe7f5;           /* soft-blue photo background */
-  --c-card: #d6f5ee;          /* vital cards (D19) */
-  --c-panel: #f2f3f5;         /* empty calculation rectangle */
+  /* Brand / type */
+  --c-navy: #042d45;          /* headlines, card titles (all) */
+  --c-ink: #13002e;           /* nav links (all) */
+  --c-ink-2: #001b2b;         /* "A 30-second facial scan…", card values, CTA arrow (D10, D19) */
+  --c-ink-3: #1a202c;         /* active step-pill label (D12–D18) */
+  --c-cta-ink: #230617;       /* CTA label, D16 label-pill text (D9, D16) */
+  --c-contact-ink: #14283f;   /* "Contact us" nav button text (all) */
+  --c-plum: #681144;          /* eyebrow "CAMERA-BASED HEALTH INTELLIGENCE" (all) */
+  --c-mint: #4de5a1;          /* logo, CTA fill, active step dot (all) */
+  --c-teal: #44b3a2;          /* ROI boxes, RGB box, D19 card stroke (D13–D19) */
+  --c-chip: #00816d;          /* vital chips, G channel, scan-line base (D10, D12, D17) */
+  --c-chip-ink: #fdfdfc;      /* chip label, step numbers (D10–D18) */
+  --c-aqua-line: #88e6d7;     /* chip / tag / active pill stroke (D9–D18) */
+  --c-scan-hot: #b4fff3;      /* scan-line highlight (D12) */
+  --c-magenta: #ae1d72;       /* gradient end, D19 connector lines (all) */
+  --c-chart: #ce73a8;         /* D19 card charts */
+  --c-orange: #f59e0b;        /* light beams, RGB arrows (D16–D18) */
+  --c-r: #ef4444;             /* R channel (D17–D18) */
+  --c-g: #00816d;             /* G channel (D17–D18) */
+  --c-b: #01aeff;             /* B channel (D17–D18) */
+
+  /* Surfaces */
+  --c-sky: #d3e2f4;           /* soft-blue photo background, sampled from front.webp (D11) */
+  --c-tag: #cefaf3;           /* hashtag pills, D19 cards (D9, D10, D19) */
+  --c-tag-ink: #4d606c;       /* hashtag text (D9, D10) */
+  --c-card: #cefaf3;          /* D19 vital cards */
+  --c-panel: #f3f3f3;         /* step pills, calculation panel (D11–D18) */
+  --c-line: #d1dadf;          /* inactive pill stroke/dot, panel stroke, nav button stroke (all) */
+  --c-muted: #8f9ea7;         /* inactive step-pill label (D11–D18) */
+  --c-nav-bg: rgb(255 255 255 / .64); /* nav bar fill (all) */
+  --c-nav-line: #d6e0e8;      /* nav bar inner border (all) */
+  --c-label-bg: rgb(255 255 255 / .65); /* D16 label pills */
   --c-white: #ffffff;
 
-  --grad-accent: linear-gradient(90deg, var(--c-mint) 0%, #3b5f6b 45%, var(--c-magenta) 100%);
+  /* Icon palettes (radial stops 0 / .45 / 1, then accent = ring + sparkle) (D10, D19) */
+  --ic-heart: #e9fff4, #7cf2be, #1fb894;      --ic-heart-accent: #22bfa6;
+  --ic-oxygen: #eafbff, #8ee6f2, #1fb4d2;     --ic-oxygen-accent: #4db6e6;
+  --ic-pressure: #ffeaf5, #f28cc0, #c2327f;   --ic-pressure-accent: #d44a9b;
+  --ic-breathing: #f1ecff, #b9a6f0, #7e5cc9;  --ic-breathing-accent: #9152bc;
+  --ic-glucose: #fff3fb, #e4b9dd, #9152bc;    --ic-glucose-accent: #bea1d9;
+
+  /* Sub-headline gradient (all). Figma runs it along a diagonal in user space
+     (D9: (80,366)→(110,490)); a 100deg linear-gradient on the text box is close. */
+  --grad-accent: linear-gradient(100deg, #0baa7a 0%, #087957 26.9%, #ae1d72 99%);
+  --grad-scan: linear-gradient(90deg, #00816d 0%, #00816d 31.7%, #b4fff3 49%, #00816d 64.4%, #00816d 100%);
 
   /* Type */
   --f-display: "Inter Tight", "Inter", system-ui, sans-serif;
@@ -26,9 +54,11 @@
 
   /* Layout */
   --gutter: clamp(16px, 5.5vw, 80px);
-  --nav-h: 76px;
+  --nav-h: 76px;              /* D9: bar 80..1360 × 33..109 */
   --radius-pill: 999px;
-  --radius-card: 20px;
+  --radius-card: 18.85px;     /* D19 cards */
+  --radius-step: 16px;        /* step pills (rx 15.5 + 0.5 stroke) */
+  --radius-panel: 26px;       /* D17 calculation panel */
 
   /* Debug */
   --debug-bg: rgba(10, 20, 30, .82);

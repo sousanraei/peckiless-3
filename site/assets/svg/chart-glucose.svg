@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290.2 150.77" fill="none">
+  <title>glucose card chart (card-local)</title>
+  <g transform="translate(-396.401 -756.401)">
+    <g id="chart">
+      <rect x="414.387" y="837.812" width="23.2574" height="11.2277" fill="#CE73A8" />
+      <rect x="443.258" y="841.82" width="23.2574" height="7.21781" fill="#CE73A8" />
+      <rect x="472.129" y="824.977" width="23.2574" height="24.0594" fill="#CE73A8" />
+      <rect x="501" y="819.367" width="23.2574" height="29.6732" fill="#CE73A8" />
+      <rect x="529.871" y="812.148" width="23.2574" height="36.8911" fill="#CE73A8" />
+      <rect x="558.742" y="837.812" width="23.2574" height="11.2277" fill="#CE73A8" />
+      <rect x="587.613" y="819.367" width="23.2574" height="29.6732" fill="#CE73A8" />
+      <rect x="616.484" y="827.383" width="23.2574" height="21.6534" fill="#CE73A8" />
+      <rect x="645.357" y="837.812" width="23.2574" height="11.2277" fill="#CE73A8" />
+    </g>
+  </g>
+</svg>

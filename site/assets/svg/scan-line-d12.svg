@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1024" fill="none">
+  <title>D12 scan line</title>
+  <defs>
+    <linearGradient id="scan-line-d12-paint1_linear" x1="757.5" y1="375" x2="991" y2="375" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00816D" />
+      <stop offset="0.317308" stop-color="#00816D" />
+      <stop offset="0.490385" stop-color="#B4FFF3" />
+      <stop offset="0.644231" stop-color="#00816D" />
+      <stop offset="1" stop-color="#00816D" />
+    </linearGradient>
+  </defs>
+  <path d="M757.5 374.5L991 374.5" stroke="url(#scan-line-d12-paint1_linear)" stroke-width="2" stroke-linecap="square" id="scan-line" />
+</svg>

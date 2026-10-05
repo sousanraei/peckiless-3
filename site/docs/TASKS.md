@@ -6,7 +6,7 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | # | Task | Status |
 |---|---|---|
 | T0 | Scaffold + handoff docs | done |
-| T1 | Asset extraction + optimisation | todo |
+| T1 | Asset extraction + optimisation | done |
 | T2 | Static layout of all scenes (no motion) | todo |
 | T3 | S1 Hero glow + vital chips (D9→D10) | todo |
 | T4 | Head-turn footage (AI image-to-video) | todo |

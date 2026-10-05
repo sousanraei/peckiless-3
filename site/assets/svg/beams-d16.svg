@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1024" fill="none">
+  <title>D16 light paths</title>
+  <g id="beam-in">
+    <path d="M151 -16C151 -16 697.134 449.857 725.038 474.339" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="beam-in-line" />
+    <path d="M599.699 411.82L645.813 406.496L643.151 383.439L640.49 360.382" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="beam-in-head" />
+  </g>
+  <g id="beam-specular">
+    <path d="M735.912 475.859L1462 -49.9922" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="beam-specular-line" />
+    <path d="M869.293 420.672L872.782 374.383L849.638 372.638L826.493 370.893" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="beam-specular-head" />
+  </g>
+  <g id="beam-out">
+    <path d="M1149.85 473.109L1448.24 257.63" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="beam-out-line" />
+    <path d="M1308.83 399.961L1314.97 353.948L1291.96 350.879L1268.95 347.81" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="beam-out-head" />
+  </g>
+  <g id="tissue-out">
+    <path d="M943.609 840L1147.35 481" stroke="#F59E0B" stroke-width="10" stroke-miterlimit="3.4203" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="31 20" id="tissue-out-line" />
+    <path d="M1032.38 747.047L1023.4 701.503L1000.62 705.992L977.852 710.482" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="tissue-out-head" />
+  </g>
+  <g id="tissue-in">
+    <path d="M733.299 485L923.299 816" stroke="#F59E0B" stroke-width="10" stroke-miterlimit="3.4203" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="31 20" id="tissue-in-line" />
+    <path d="M815.299 693.039L859.34 707.709L866.675 685.688L874.01 663.667" stroke="#F59E0B" stroke-width="10" stroke-linecap="round" id="tissue-in-head" />
+  </g>
+</svg>

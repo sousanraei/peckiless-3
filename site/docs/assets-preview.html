@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asset check</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<style>
+  body { margin: 0; padding: 16px; font: 14px/1.4 var(--f-body); background: #e9edf0; color: var(--c-ink); }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  p { margin: 0 0 16px; max-width: 70ch; }
+  .bar { position: sticky; top: 0; z-index: 9; display: flex; gap: 12px; align-items: center; padding: 8px 0; background: #e9edf0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(480px, 100%), 1fr)); gap: 16px; }
+  figure { margin: 0; background: #fff; border-radius: 8px; padding: 8px; }
+  figcaption { font-weight: 600; margin-bottom: 6px; }
+  .frame { position: relative; width: 100%; aspect-ratio: 1440 / 1024; overflow: hidden; background: #fff; container-type: inline-size; }
+  .frame > .space { position: absolute; left: 0; top: 0; width: 1440px; height: 1024px; background: #fff; transform-origin: 0 0; transform: scale(calc(100cqw / 1440px)); }
+  .space > * { position: absolute; }
+  .space > svg, .space > img.full { left: 0; top: 0; width: 1440px; height: 1024px; }
+  .orig { left: 0; top: 0; width: 1440px; height: 1024px; display: none; }
+  body.diff .orig { display: block; mix-blend-mode: difference; }
+  body.onion .orig { display: block; opacity: .5; }
+  .icons { display: flex; flex-wrap: wrap; gap: 24px; }
+  .icon { position: relative; width: 232px; height: 232px; background: #00816D; border-radius: 12px; }
+  .icon > * { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .icon span { position: static; display: block; margin-top: 236px; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>T1 asset check</h1>
+<p>Each frame is rebuilt from the extracted assets only (photo placed from <code>manifest.json</code>, frame-space SVG overlays, icons from their shared boxes). Text is not extracted (T2 rebuilds it as live HTML). With the page served from the project root (port 8081), <b>diff</b> overlays the original frame with <code>mix-blend-mode: difference</code>, so aligned pixels go black.</p>
+<div class="bar">
+  <label><input type="radio" name="m" value="" checked> rebuilt</label>
+  <label><input type="radio" name="m" value="diff"> diff vs original</label>
+  <label><input type="radio" name="m" value="onion"> onion skin</label>
+</div>
+<div class="grid" id="grid"></div>
+<h1 style="margin-top:24px">Icons (4×): shadow, glow, glyph stacked</h1>
+<div class="icons" id="icons"></div>
+<script type="module">
+import { ASSETS } from '../js/assets.js';
+const A = '../';
+const grid = document.getElementById('grid');
+const photoFor = {};
+for (const [name, p] of Object.entries(ASSETS.photos))
+  for (const [f, box] of Object.entries(p.frames)) photoFor[f] = { ...box, file: p.file };
+
+const overlays = {
+  12: ['scan-line-d12.svg'], 13: ['roi-d13.svg'], 14: ['roi-d14.svg'], 15: ['roi-d14.svg', 'swatches-d15.svg'],
+  16: ['beams-d16.svg'], 17: ['rgb-d17.svg'], 18: ['rgb-d17.svg'], 19: ['connectors-d19.svg'],
+};
+
+function iconStack(space, name, box) {
+  const ic = ASSETS.icons[name];
+  for (const k of ['shadow', 'glow', 'glyph']) {
+    const img = new Image();
+    img.src = A + ic[k];
+    Object.assign(img.style, { left: box[0] + 'px', top: box[1] + 'px', width: box[2] + 'px', height: box[3] + 'px' });
+    space.append(img);
+  }
+}
+
+for (let n = 9; n <= 19; n++) {
+  const fig = document.createElement('figure');
+  fig.innerHTML = `<figcaption>Desktop ${n}</figcaption><div class="frame"><div class="space"></div></div>`;
+  const space = fig.querySelector('.space');
+  const ph = photoFor[n];
+  if (ph) {
+    const img = new Image();
+    img.src = A + ph.file;
+    Object.assign(img.style, { left: ph.left + 'px', top: ph.top + 'px', width: ph.width + 'px', height: ph.height + 'px' });
+    space.append(img);
+  }
+  const lg = ASSETS.logo.box;
+  const logo = new Image(); logo.src = A + ASSETS.logo.file;
+  Object.assign(logo.style, { left: lg[0] + 'px', top: lg[1] + 'px', width: lg[2] + 'px', height: lg[3] + 'px' });
+  space.append(logo);
+  for (const f of overlays[n] || []) {
+    const o = new Image(); o.src = A + 'assets/svg/' + f; o.className = 'full'; space.append(o);
+  }
+  if (n === 10) for (const [name, ic] of Object.entries(ASSETS.icons)) iconStack(space, name, ic.box);
+  if (n === 19) {
+    for (const [name, c] of Object.entries(ASSETS.cards_d19)) {
+      const card = document.createElement('div');
+      Object.assign(card.style, { left: c[0] + 'px', top: c[1] + 'px', width: c[2] + 'px', height: c[3] + 'px',
+        background: 'var(--c-card)', border: '.8px solid var(--c-teal)', borderRadius: '18.85px', boxSizing: 'border-box' });
+      space.append(card);
+      const ch = new Image(); ch.src = A + `assets/svg/chart-${name}.svg`;
+      Object.assign(ch.style, { left: c[0] + 'px', top: c[1] + 'px', width: c[2] + 'px', height: c[3] + 'px' });
+      space.append(ch);
+      iconStack(space, name, ASSETS.icons_d19[name].box);
+    }
+  }
+  const orig = new Image(); orig.className = 'orig'; orig.src = `../../Desktop - ${n}.svg`;
+  orig.onerror = () => orig.remove();
+  space.append(orig);
+  grid.append(fig);
+}
+
+const icons = document.getElementById('icons');
+for (const [name, ic] of Object.entries(ASSETS.icons)) {
+  const d = document.createElement('div'); d.className = 'icon';
+  for (const k of ['shadow', 'glow', 'glyph']) { const i = new Image(); i.src = A + ic[k]; d.append(i); }
+  const s = document.createElement('span'); s.textContent = `${name} · box ${ic.box[2]}×${ic.box[3]}`; d.append(s);
+  icons.append(d);
+}
+document.querySelectorAll('input[name=m]').forEach(r => r.addEventListener('change', () => {
+  document.body.className = r.value;
+}));
+</script>
+</body>
+</html>
