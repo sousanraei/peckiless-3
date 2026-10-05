@@ -62,6 +62,7 @@ Palette: take exact hex values from the SVGs in T1. Starting values: navy headli
 - Artifact limits: 16MB per page and 15MB per file, so keep the image sequence ≤ ~90 frames at 1280w.
 
 ## Handoff protocol (applies to every task)
+- **Every time a task is finished, the agent must (1) mark it `done` in `site/docs/TASKS.md` and in the "Task tracker" of the shared plan doc (https://claude.ai/code/artifact/22718cd4-2473-41d0-a7fe-5f678f4ce9c7), and (2) commit and push the changes to https://github.com/sousanraei/peckiless-3 on `main`. A task is not complete until both are done.**
 - `site/docs/TASKS.md`: the checklist below, with a status per task (`todo / in-progress / done / blocked`). Mark your task `in-progress` when you start and `done` when you finish.
 - `site/docs/HANDOFF.md`: append one entry per task covering what was built, the files touched, decisions, known issues, and the **exact next step**. Read the latest entry before you start.
 - `site/docs/ASSET_MAP.md`: maps every extracted asset and shared DOM id to its source frame and element.
