@@ -283,3 +283,31 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - This session ran in a cloud container (no Browser pane), so screenshots come from headless Chromium rather than the pane.
 
 **Next step → T9:** t4-beams (D16 → D17): keep the S6 beam paths (`[data-id="beam-in-line"]`, `beam-specular`, `beam-out`, tissue paths) persistent, interpolate their points (same point count) while the camera pans until they become the D17 arrows feeding the RGB box (`#diagram`, `[data-id="arrow-tails"]`). The pulses' `ambient()` window ends at t4-beams' midpoint (S6's hold); fade `.vessels__pulses` with the skin as it slides away.
+
+---
+
+## T9 T4 Follow the light beams (done, 2026-10-06)
+
+**Built**
+- `js/scenes/t4-beams.js` (config: `module: 't4-beams.js'`). `build()` makes the beam layer; `link()` drives it plus S6's and S7's elements.
+- **Idea**: the two beams leaving the skin (`beam-specular`, `beam-out`) are parallel in D16 (−35.9°, 240.6 frame px apart). A camera that follows them up and to the right and rolls +35.9° levels them, so they *become* the two D17 arrows (86.6 apart → scale 0.36). Specular → `arrow-0`, beam-out → `arrow-1`.
+- **One pair of beams for the whole segment** (`.layer--t4-beams > .fly__svg`, screen px). Each beam = 2-point shaft + 3-point chevron at both ends. Point = `C(u)·p16 + w·(P17 − F·p16)`: carried by the camera `C(u)` (exponential scale, linear roll, the pivot = midpoint between the chevron tips travelling straight on screen from its D16 spot to the D17 chevrons), plus a residual that lands exactly on the D17 centrelines (`F = C(1)`). The chevron is built in the shaft's own frame (tip at an interpolated fraction of the shaft, arms at interpolated local offsets), so it always sits on its shaft and keeps a screen size that eases from D16's (46 frame px arms) to D17's, instead of shrinking with the camera. Shafts end off-screen left at D17 (the real arrows have off-canvas tails). Stroke widths ease 10 → 9.1 (shaft) / 8 (arms) in screen terms.
+- **Skin rides the camera**: S6's photo content is wrapped in `.beams-cam` (so neither fit.js's transform on the frame box nor t3-skin's `--rise` translate is touched); its transform is `A⁻¹ ∘ C(u)`. Its right and bottom edges get a growing feathered mask (`--fe` 0 → 380 frame px over 0.02–0.3) so the rolled image never shows a hard edge. The incoming beam, tissue paths, vessels and pulses go with it.
+- **Segment fractions**: labels fade 0–0.12; S6 headline wipes out 0–0.25; camera 0.04–0.9 (`sine.inOut`), residual weight over u 0.1–0.95 (`power2.inOut`); skin fades 0.12–0.45; cut S6 → S7 at 0.5 (white on white, `.fly__bg` takes over the white); S7 headline wipes in 0.55–0.82; RGB box draws on 0.56–0.86; cells, curves, label and panel fade in 0.62–0.9; S7's real arrows fade in on top of the (identical) beams 0.9–0.97; the beam layer hides at the segment end.
+- **Layering**: `.layer--t4-beams` sits between S6 and S7 in DOM order. `data-beams="on"` (whole segment) hides S6's own two outgoing beams and drops S7's background (scenes.css, "T4 follow the beams").
+
+**Verified** (headless Chromium via Playwright, GSAP from the npm package as in T8)
+- **Never disappear / never replaced**: frame-stepping 57 steps from t4 −0.08 to +1.08, the count of beam-orange pixels falls smoothly from 28.4k (D16) to 6.5k (D17) with no gap. The beam layer is visible at every step inside the segment; shaft length ≥ 280 screen px throughout.
+- **Seams**: S6 0.9999 vs t4 0.0001 and t4 0.9999 vs S7 0.0001 differ only in anti-aliased edge pixels of the beams (plus the time-based pulses at the start seam); the midpoint cut differs only where the scene is meant to change (the step-4 pill lights there).
+- Forward vs reverse sweep, 61 points from t4 −0.3 to +1.5, every element of S6/T4/S7 (inline styles, path `d`, stroke widths, `data-beams`), excluding the time-based pulse dots: identical.
+- 1440×1024, 1920×1080, 375×812: geometry is read from the photo and diagram fits, so all three land exactly on the D17 arrows. Reduced motion: layer hidden, no `.beams-cam`, arrows static. No console errors.
+- Screenshots: `docs/shots/t9-desktop.jpg` (t4 0.02 / 0.2 / 0.35 / 0.5 / 0.65 / 0.8), `docs/shots/t9-mobile-375.jpg` (t4 0.2 / 0.45 / 0.65 / 0.9).
+
+**Known issues / notes**
+- This session ran in a cloud container; T8 lived on the unmerged branch `claude/t8-implementation-1zwuiu`, so T9 is built on top of it (the T9 branch includes T8's commit).
+- Matching frames: D16 at `s6-vessels+0.6`…`t4-beams+0`, D17 from `t4-beams+0.9`. `?ref=` still switches at the labels.
+- The RGB box / cells / curves / panel entrance here is a simple draw + fade so S7 doesn't pop in; T10 may replace the cells lighting up and the curves drawing into the panel inside S7 (they are fully visible from t4 0.9).
+- Mobile: the pill scroller's smooth scroll to "Clean noises" starts at the midpoint cut (existing behaviour).
+- Reduced motion: no transition (static D16 → D17).
+
+**Next step → T10:** S7 Step 4 (D17) in `s7-clean.js`: seeded synthetic rPPG data (1.2 Hz pulse, 0.25 Hz respiration, drift, motion noise), draw raw → detrend → POS → band-pass → BVP into `#calc-panel .panel__body` with axes, units and a formula, scroll-scrubbed across S7's 2.4 units (each stage readable for ~half a viewport). The diagram and panel are fully in from `t4-beams+0.9`.
