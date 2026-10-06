@@ -33,43 +33,92 @@ a { color: inherit; }
 }
 .layer > * { pointer-events: auto; }
 
-/* ---------- Nav (placeholder; real styling in T2) ---------- */
-.nav {
+/* ---------- Frame boxes (js/lib/fit.js) ---------- */
+/* A 1440x1024 box in Figma frame px, scaled into its host by fit.js. */
+.fbox {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 1024px;
+  transform-origin: 0 0;
+}
+.fbox img { max-width: none; }
+/* Frame-px placement from --x/--y/--w/--h (dom.js `at()`). Desktop uses it
+   everywhere; mobile rules reflow components that need it. */
+.at {
+  position: absolute;
+  left: calc(var(--x) * 1px);
+  top: calc(var(--y) * 1px);
+  width: calc(var(--w) * 1px);
+  height: calc(var(--h) * 1px);
+}
+
+/* ---------- Nav (D9–D19: bar 80,33 1280x76) ---------- */
+.chrome {
   position: fixed;
   z-index: 50;
-  top: clamp(12px, 3.2vh, 33px);
-  left: var(--gutter);
-  right: var(--gutter);
-  height: var(--nav-h);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, .55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
 }
-.nav__logo {
-  font: 800 28px/1 var(--f-display);
-  color: var(--c-mint);
+.nav {
+  position: absolute;
+  left: 80px;
+  top: 33px;
+  width: 1280px;
+  height: 76px;
+  border-radius: 38px;
+  background: var(--c-nav-bg);
+  box-shadow: inset 0 0 0 1px var(--c-nav-line);
+  pointer-events: auto;
+}
+.nav__logo { position: absolute; left: 35px; top: 13px; width: 32px; height: 50px; }
+.nav__logo img { width: 100%; height: 100%; }
+.nav__links { list-style: none; margin: 0; padding: 0; }
+.nav__links li { position: absolute; left: calc(var(--x) * 1px); top: 28px; }
+.nav__links a {
+  font: 340 14.4px/20px var(--f-body);
+  letter-spacing: -0.1px;
+  color: var(--c-ink);
   text-decoration: none;
 }
-.nav__links {
-  display: flex;
-  gap: 36px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font: 500 15px/1 var(--f-body);
+.nav__cta {
+  position: absolute;
+  left: 1151px;
+  top: 14px;
+  width: 114px;
+  height: 47px;
+  display: grid;
+  place-items: center;
+  padding-top: 2px;
+  border: 1px solid var(--c-line);
+  border-radius: 23.5px;
+  background: var(--c-white);
+  font: 600 14.24px/1 var(--f-body);
+  letter-spacing: -0.1px;
+  color: var(--c-contact-ink);
+  text-decoration: none;
 }
-.nav__links a { text-decoration: none; }
 @media (max-width: 899px) {
-  .nav { padding: 0 20px; }
-  .nav__links { display: none; }
+  .chrome { left: 0; top: 0; right: 0; width: auto; height: 0; transform: none; }
+  .nav {
+    left: 12px;
+    right: 12px;
+    top: var(--nav-top);
+    width: auto;
+    height: var(--nav-h);
+    border-radius: 999px;
+  }
+  .nav__logo { left: 20px; top: 50%; width: 24px; height: 38px; translate: 0 -50%; }
+  .nav nav { display: none; }
+  .nav__cta { left: auto; right: 8px; top: 50%; translate: 0 -50%; width: auto; height: 40px; padding: 0 16px; border-radius: 20px; font-size: 14px; }
 }
 
 /* ---------- Debug overlay ---------- */
+.debug-ref { position: fixed; z-index: 60; pointer-events: none; }
+.debug-ref img { width: 1440px; height: 1024px; }
+.debug-ref[data-mode="onion"] { opacity: 0.5; }
+.debug-ref[data-mode="diff"] { mix-blend-mode: difference; }
+
 .debug {
   position: fixed;
   z-index: 100;

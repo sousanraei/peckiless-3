@@ -1,27 +1,358 @@
-/* Per-scene styles. Each scene adds a block scoped to its layer: .layer--<id> */
+/* Scene styles. Desktop (≥900px) places everything in frame px inside the
+   fit-scaled frame boxes, so at 1440x1024 the stage matches the Desktop
+   frames. Mobile (<900px) reflows: copy on top, photo cropped to the face,
+   chips/cards in a 2-column grid, pills as a scroller.
+   Type sizes/weights were fitted to the outlined text in the frames (T2). */
 
-/* ---------- Placeholder scenes (T0). Delete a scene's placeholder use once
-   its real module exists; remove this block entirely when none remain. ---------- */
-.ph {
+/* ---------- Layers ---------- */
+.scene { background: var(--c-sky); }
+.scene--light { background: var(--c-white); }
+.scene--overlay { background: none; }
+.layer--s1-hero { background: var(--c-hero-top); }
+.layer--s9-finale { background: var(--c-finale-top); }
+
+.photo__img { position: absolute; }
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 1024px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ---------- Copy block: eyebrow + headline + gradient sub-headline ---------- */
+.copy { position: absolute; left: 80px; top: 150.26px; width: 1000px; }
+.copy p, .copy h1, .copy h2 { margin: 0; }
+.copy__eyebrow {
+  font: 710 12.21px/15px var(--f-body);
+  letter-spacing: 0.153em;
+  text-transform: uppercase;
+  color: var(--c-plum);
+  margin-bottom: 6.9px !important;
+}
+.copy__h {
+  position: relative;
+  left: 1.5px;
+  font: 640 93.33px/84px var(--f-display);
+  letter-spacing: -0.0225em;
+  color: var(--c-navy);
+}
+.copy__h span, .copy__sub span { display: block; white-space: nowrap; }
+.copy__sub {
+  font: 620 46.2px/46px var(--f-body);
+  letter-spacing: 0.004em;
+  color: transparent;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.copy__h + .copy__sub, .copy__sub + .copy__h { margin-top: 7px !important; }
+
+/* ---------- S1 hero: tags, CTA, results + chips ---------- */
+.tags {
+  position: absolute;
+  left: 80px;
+  top: 421px;
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tags[data-state="up"] { top: 407px; }
+.tags li {
+  height: 29px;
+  padding: 1px 0 0 10.6px;
+  border: 1px solid var(--c-aqua-line);
+  border-radius: 14.5px;
+  background: var(--c-tag);
+  font: 650 12.21px/27px var(--f-body);
+  letter-spacing: 0.148em;
+  text-transform: uppercase;
+  color: var(--c-tag-ink);
+}
+.tags li:nth-child(1) { width: 99px; }
+.tags li:nth-child(2) { width: 114px; }
+
+.cta {
+  position: absolute;
+  left: 80px;
+  top: 478px;
+  width: 191px;
+  height: 54px;
+  padding-left: 21.5px;
+  border-radius: 27px;
+  background: var(--c-mint);
+  font: 400 22.38px/54px var(--f-body);
+  color: var(--c-cta-ink);
+  text-decoration: none;
+}
+.cta svg {
+  position: absolute;
+  left: 150.5px;
+  top: 18px;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--c-ink-2);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.results__title {
+  position: absolute;
+  left: 81px;
+  top: 595.6px;
+  margin: 0;
+  font: 750 27.2px/32px var(--f-body);
+  letter-spacing: -0.45px;
+  white-space: nowrap;
+  color: var(--c-ink-2);
+}
+.chips { margin: 0; padding: 0; list-style: none; }
+.chip {
+  display: flex;
+  align-items: center;
+  padding-left: 28.4px;
+  border: 1px solid var(--c-aqua-line);
+  border-radius: 999px;
+  background: var(--c-chip);
+}
+.chip__label {
+  font: 770 26.39px/1 var(--f-body);
+  color: var(--c-chip-ink);
+  white-space: nowrap;
+}
+
+/* Icon stack: stationary shadow + glow, glyph on top (T3 animates its body). */
+.icon > * { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+
+/* ---------- Step pills (shared, D11–D18) ---------- */
+.pills { margin: 0; padding: 0; list-style: none; }
+.pill {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-step);
+  background: var(--c-panel);
+}
+.pill__dot {
+  position: absolute;
+  left: 16.5px;
+  top: 19px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--c-line);
+  font: 700 12px/26px var(--f-body);
+  text-align: center;
+  color: var(--c-chip-ink);
+}
+.pill__label {
+  position: absolute;
+  left: 54px;
+  top: 0;
+  font: 800 26.39px/63px var(--f-body);
+  white-space: nowrap;
+  color: var(--c-muted);
+}
+.pills[data-active="1"] .pill:nth-child(-n + 1),
+.pills[data-active="2"] .pill:nth-child(-n + 2),
+.pills[data-active="3"] .pill:nth-child(-n + 3),
+.pills[data-active="4"] .pill:nth-child(-n + 4),
+.pills[data-active="5"] .pill:nth-child(-n + 5) {
+  border-color: var(--c-aqua-line);
+  --dot: var(--c-mint);
+  --label: var(--c-ink-3);
+}
+.pill .pill__dot { background: var(--dot, var(--c-line)); }
+.pill .pill__label { color: var(--label, var(--c-muted)); }
+
+/* ---------- S6 / D16 light-path labels ---------- */
+.beam-label {
   display: grid;
   place-items: center;
+  border: 3px solid var(--c-orange);
+  padding-top: 2px;
+  border-radius: 29.5px;
+  background: var(--c-label-bg);
+  font: 330 19.9px/1 var(--f-body);
+  letter-spacing: -0.4px;
+  white-space: nowrap;
+  color: var(--c-cta-ink);
+}
+
+/* ---------- S7/S8 RGB diagram + calculation panel ---------- */
+.rgb [data-id="calc-panel"] { display: none; }
+.rgb-label {
+  position: absolute;
+  left: 356px;
+  top: 696.1px;
+  width: 224px;
+  margin: 0;
+  font: 600 16px/19.4px var(--f-body);
   text-align: center;
-  color: var(--c-navy);
-  opacity: 0;
+  white-space: nowrap;
+  color: #000;
 }
-.ph__card {
-  padding: 32px 40px;
+.panel {
+  position: absolute;
+  left: 689px;
+  top: 178px;
+  width: 686px;
+  height: 583px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-panel);
+  background: var(--c-panel);
+  overflow: hidden;
+}
+.panel__body { position: absolute; inset: 0; }
+
+/* ---------- S9 / D19 vital cards (card-local px) ---------- */
+.card {
+  box-sizing: border-box;
+  margin: 0;
+  border: 0.8px solid var(--c-teal);
   border-radius: var(--radius-card);
-  background: rgba(255, 255, 255, .7);
-  box-shadow: 0 10px 40px rgba(11, 42, 64, .12);
+  background: var(--c-card);
+  color: var(--c-navy);
 }
-.ph__kind { font: 600 12px/1 var(--f-body); letter-spacing: .14em; text-transform: uppercase; color: var(--c-plum); }
-.ph__title { font: 800 clamp(32px, 5vw, 64px)/1.05 var(--f-display); margin: 10px 0 6px; }
-.ph__frame { font: 500 15px/1.3 var(--f-body); color: var(--c-ink); }
-.ph--transition .ph__card { background: rgba(245, 158, 11, .14); }
+.card__chart { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+.card__title {
+  position: absolute;
+  left: 16px;
+  top: 13.4px;
+  margin: 0;
+  font: 760 21px/24px var(--f-body);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.card--blood-oxygen .card__title { color: var(--c-ink-2); }
+.card__row {
+  position: absolute;
+  left: 15.7px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  font: 400 11px/14px var(--f-body);
+}
+.card__row span + span { font-weight: 600; }
+.card--glucose .card__row { font-size: 10px; }
+.card--glucose .card__row span + span { font-weight: 400; }
+.card__foot {
+  position: absolute;
+  left: 15.5px;
+  right: 16px;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  line-height: 24px;
+  white-space: nowrap;
+}
+.card__value { font: 800 22.5px/24px var(--f-body); letter-spacing: -0.4px; translate: 0 -1.5px; }
+.card__unit { margin-left: 6px; font: 500 10px/1 var(--f-body); translate: 0 -1.5px; }
+.card__delta { margin-left: auto; font: 400 9.5px/1 var(--f-body); translate: 0 -1.5px; }
+
+/* ======================= Mobile (< 900px) ======================= */
+@media (max-width: 899px) {
+  /* Photos fade out at the frame's top edge into the layer colour. */
+  .photo__img {
+    -webkit-mask-image: linear-gradient(transparent, #000 16%);
+    mask-image: linear-gradient(transparent, #000 16%);
+  }
+  .photo__img--skin { -webkit-mask-image: none; mask-image: none; }
+
+  .ui {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+    padding: calc(var(--nav-top) + var(--nav-h) + 24px) 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    pointer-events: none;
+  }
+  .ui > * { pointer-events: auto; }
+  /* Components that reflow on mobile drop their frame-px placement. */
+  .chip.at, .pill.at, .card.at { position: relative; left: auto; top: auto; width: auto; height: auto; }
+
+  .copy { position: relative; left: auto; top: auto; width: 100%; }
+  .copy__eyebrow { font-size: 10px; line-height: 13px; letter-spacing: 0.14em; margin-bottom: 10px !important; }
+  .copy__h { font-size: clamp(36px, 10.6vw, 66px); line-height: 0.93; }
+  .copy__h span { white-space: normal; }
+  .copy__sub { font-size: clamp(19px, 5.4vw, 33px); line-height: 1.08; }
+  .copy__h + .copy__sub, .copy__sub + .copy__h { margin-top: 8px !important; }
+  /* S5 swaps between two copy blocks; stack them instead of flowing both. */
+  .copy--d15 { position: absolute; left: 20px; right: 20px; top: calc(var(--nav-top) + var(--nav-h) + 24px); width: auto; }
+
+  .tags { position: relative; left: auto; top: auto; margin-top: 14px; gap: 8px; }
+  .tags[data-state="up"] { top: auto; }
+  .tags li { width: auto !important; height: 24px; padding: 0 10px; font-size: 10px; line-height: 22px; }
+  .cta {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: 46px;
+    margin-top: 16px;
+    padding: 0 48px 0 20px;
+    font-size: 18px;
+    line-height: 46px;
+  }
+  .cta svg { left: auto; right: 20px; top: 14px; width: 17px; height: 17px; }
+
+  .results { position: absolute; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .results__title { position: static; font-size: 16px; line-height: 20px; margin-bottom: 10px; white-space: normal; }
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .chip.at { height: 52px; padding: 0 8px 0 16px; justify-content: space-between; gap: 6px; }
+  .chip__label { font-size: clamp(13px, 3.7vw, 18px); white-space: normal; line-height: 1.05; }
+  .chip .icon.at { position: relative; left: auto; top: auto; flex: none; width: 36px; height: 36px; }
+
+  /* Pills: compact horizontal scroller along the bottom. */
+  .pills {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 8px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding: 0 16px;
+    scrollbar-width: none;
+  }
+  .pills::-webkit-scrollbar { display: none; }
+  .pill.at { flex: none; height: 40px; padding: 0 14px 0 38px; scroll-snap-align: start; border-radius: 12px; }
+  .pill__dot { left: 10px; top: 9px; width: 20px; height: 20px; font-size: 10px; line-height: 20px; }
+  .pill__label { position: static; font-size: 14px; line-height: 38px; }
+
+  /* Frame-space labels stay readable when the frame box is scaled down. */
+  .beam-label { scale: max(1, calc(0.55 / var(--fs, 1))); }
+  .rgb-label { scale: max(1, calc(0.7 / var(--fs, 1))); transform-origin: 50% 0; }
+
+  /* D19 cards: 2-column grid at the bottom, each card zoomed to fit. */
+  .cards {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    top: auto;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    width: auto;
+    height: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    justify-items: start;
+  }
+  .cards .connectors { display: none; }
+  .card.at { width: 290px; height: 151px; zoom: var(--card-zoom, 0.55); }
+}
 
 /* ---------- Reduced motion (full alternative built in T14) ---------- */
 .is-reduced .track { height: auto; }
 .is-reduced .stage { position: static; height: auto; overflow: visible; }
-.is-reduced .layer { position: relative; inset: auto; min-height: 100svh; }
-.is-reduced .ph { opacity: 1; }
+.is-reduced .layer { position: relative; inset: auto; height: 100svh; overflow: hidden; }
+.is-reduced .layer--s8-calc, .is-reduced .layer--shared { display: none; }

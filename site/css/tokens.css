@@ -35,6 +35,8 @@
   --c-nav-line: #d6e0e8;      /* nav bar inner border (all) */
   --c-label-bg: rgb(255 255 255 / .65); /* D16 label pills */
   --c-white: #ffffff;
+  --c-hero-top: #d2dde9;      /* top edge of hero-a.webp (mobile fade) */
+  --c-finale-top: #d0e0f3;    /* top edge of finale.webp (mobile fade) */
 
   /* Icon palettes (radial stops 0 / .45 / 1, then accent = ring + sparkle) (D10, D19) */
   --ic-heart: #e9fff4, #7cf2be, #1fb894;      --ic-heart-accent: #22bfa6;
@@ -55,6 +57,7 @@
   /* Layout */
   --gutter: clamp(16px, 5.5vw, 80px);
   --nav-h: 76px;              /* D9: bar 80..1360 × 33..109 */
+  --nav-top: 33px;
   --radius-pill: 999px;
   --radius-card: 18.85px;     /* D19 cards */
   --radius-step: 16px;        /* step pills (rx 15.5 + 0.5 stroke) */
@@ -65,5 +68,5 @@
 }
 
 @media (max-width: 899px) {
-  :root { --nav-h: 60px; }
+  :root { --nav-h: 56px; --nav-top: 10px; }
 }

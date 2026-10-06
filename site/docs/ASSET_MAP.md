@@ -98,9 +98,20 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 ## Shared DOM (used by more than one scene)
 | Selector | Owner | Used by | Purpose |
 |---|---|---|---|
-| `#nav` | index.html | all | persistent nav (fixed, outside stage) |
+| `.chrome` > `#nav` | index.html | all | persistent nav. A frame box fixed to the viewport (contain-fit, top-anchored) on desktop; plain fixed bar on mobile |
 | `#stage` | index.html | all | pinned stage; every scene appends one `.layer` |
-| `.layer--<scene-id>` | main.js | its scene | one per config entry, created in config order |
+| `.layer--<scene-id>` | main.js | its scene | one per config entry, created in config order (transitions stay empty until their task) |
+| `.layer--shared` > `#pills` | js/shared.js | S2–S8 | step-pill row. `data-active` = number of lit pills, set from each scene's `step` in config.js |
+| `#diagram` | s7-clean.js | S7, S8, T4 (beams → arrows), T5 | RGB diagram: inlined `rgb-d17.svg` + "RGB channels" label + `[data-id="arrow-tails"]` (off-canvas shaft extensions) |
+| `#calc-panel` > `.panel__body` | s7-clean.js | S7 (T10), S8 (T11), T5 | the calculation panel as HTML (the SVG's own `calc-panel` rect is hidden). Draw panel content into `.panel__body` |
+| `.layer--s1-hero .chip--<vital> .icon`, `.card--<vital> .icon` | s1-hero.js / s9-finale.js | T3, T12 | icon stacks; the glyph's moving part is `[data-id="body"]` |
+
+**Inlined SVG ids.** `js/lib/dom.js` `svg()` makes every id unique (`<id>--<n>`) and keeps the original as `data-id`, so query parts as `layer.querySelector('[data-id="roi-cheek-right"]')`, never `#roi-cheek-right`.
+
+## Layout system (T2)
+- **Frame boxes** (`.fbox`, `js/lib/fit.js`): 1440×1024 boxes in frame px, scaled into their host. Desktop: photos `cover`, UI/diagram/panel/D19 cards `contain`, nav `contain-top`. At exactly 1440×1024 (or any 1.406 aspect) both fits coincide, so the stage matches the frames. Mobile: photos use `focus` (a frame-px rect fitted into a fraction of the stage, top edge faded), UI boxes switch to flow layout (`data-m-fit="none"`). The applied scale is `--fs` on the box.
+- **Placement**: `at([x,y,w,h])` → `--x/--y/--w/--h` + class `.at` (absolute on desktop; chips, pills and cards reflow on mobile).
+- **Static schedule** (`js/lib/static.js`): each scene is held for its segment plus half of each neighbouring transition; `shows` in config.js says which frame(s) it shows (two → hard switch at the midpoint). `frameAt(tl, t)` returns the frame on screen.
 
 ## Image sequences (`assets/seq/`)
 _T4: `assets/seq/turn/` head-turn frames._

@@ -1,7 +1,8 @@
 // Boots the film: builds one layer per scene, one master timeline with a
 // label per scene, and binds it to native scroll via ScrollTrigger (scrub).
 import { SCENES, BREAKPOINT, SCRUB } from './config.js';
-import * as placeholder from './scenes/placeholder.js';
+import { buildShared } from './shared.js';
+import { fitAll } from './lib/fit.js';
 import { initDebug } from './debug.js';
 
 const { gsap, ScrollTrigger, MotionPathPlugin, DrawSVGPlugin } = window;
@@ -10,9 +11,10 @@ gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
 const stage = document.getElementById('stage');
 const track = document.getElementById('track');
 
-// Load scene modules declared in config (null → placeholder).
+// Load scene modules declared in config (null → empty layer for now).
+const none = { build() {} };
 const modules = await Promise.all(
-  SCENES.map((s) => (s.module ? import(`./scenes/${s.module}`) : placeholder))
+  SCENES.map((s) => (s.module ? import(`./scenes/${s.module}`) : none))
 );
 
 const app = { master: null, trigger: null, scenes: SCENES };
@@ -59,6 +61,11 @@ mm.add(
         start: master.labels[scene.id],
       });
     });
+    buildShared(stage, master, { isMobile, reduced });
+    fitAll(document);
+    // Decode every stage image up front so hidden layers paint instantly when
+    // they are cut to (they start visibility:hidden, which defers decoding).
+    stage.querySelectorAll('img').forEach((img) => img.decode?.().catch(() => {}));
 
     // Pad the timeline so its length always equals the scroll length.
     master.set({}, {}, at);

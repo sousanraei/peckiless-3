@@ -76,3 +76,42 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - The D19 heart-rate card sits at x 1083–1370, so it's fully on canvas.
 
 **Next step → T2:** build each scene's static end state in `#stage`. Use a 1440×1024 "frame box" per photo scene, place the `<img>` from `ASSETS.photos[name].frames[n]`, and inline or overlay the frame-space SVGs. Rebuild all text as live HTML (Inter / Inter Tight) using the tokens and the UI geometry table in ASSET_MAP. Then the mobile layouts. Compare against the frames with `docs/assets-preview.html` and the originals.
+
+---
+
+## T2 Static layout of all scenes (done, 2026-10-06)
+
+**Built**
+- One module per scene: `js/scenes/s1-hero.js` … `s9-finale.js` (file name = scene id). Transitions (`t1`–`t5`) have `module: null` → an empty layer for now; `placeholder.js` and its CSS are gone.
+- `js/lib/fit.js`: frame boxes (`.fbox`) fitted per breakpoint (`data-fit` / `data-m-fit`: cover, contain, contain-top, focus, none; `data-focus`, `data-target`, `data-fill`). Refits on resize; sets `--fs` and `--card-zoom`.
+- `js/lib/ui.js`: `photoBox`, `uiBox`, `copyBlock` (eyebrow + headline + gradient sub-headline), `icon`, `chip`/`CHIPS`, `card`/`CARDS`. `js/lib/dom.js`: `h`, `preloadSVG`/`svg` (inline with unique ids, see ASSET_MAP), `at`, `boxStyle`.
+- `js/lib/static.js`: `sceneWindow`, `hold`, `cut`, `frameAt` (see "Static schedule" in ASSET_MAP). `js/shared.js`: the step-pill row.
+- `js/config.js`: `module` set for all 9 scenes, plus `shows` (frames per scene) and `step` (lit pills); `STEPS` labels.
+- Nav rebuilt to the frame geometry (logo, 6 links, Contact us), `index.html` loads Inter 300–900 / Inter Tight 500–900 (variable).
+- Debug: `?at=<label>+<fraction>` jumps there on load, `&still` seeks the timeline instead of scrolling (deterministic screenshots), `?ref=onion|diff` overlays the matching Desktop frame (serve the project root on :8081 and open `/site/?debug&ref=diff` at 1440×1024).
+
+**Type (fitted to the outlined text in the frames)**: headline Inter Tight 640 93.33px/84px, −0.0225em; sub-headline Inter 620 46.2px/46px with the Figma user-space gradient reproduced exactly (em-based, so it scales on mobile); eyebrow Inter 710 12.21px, 0.153em; chips Inter 770 26.39px; pills Inter 800 26.39px; nav Inter 340 14.4px. All sizes/offsets are in scenes.css/base.css with comments.
+
+**Verified**
+- Desktop 1440×1024, headless Chrome capture vs. the original frames (`?still&at=…`): mean pixel diff **1.5–3.2 / 255 for all 11 frames** (D9 2.6, D10 3.2, D11 2.3, D12 2.2, D13 2.2, D14 2.3, D15 3.0, D16 2.4, D17 1.5, D18 1.6, D19 2.7). Text ink boxes are within ~1–2px of the frames.
+- 1280×720 and 1440×900: nav, copy, pills and diagram contain-fit (side margins on wide screens), photos cover; D19 cards no longer collide with the copy; D17 arrows reach the screen edge.
+- Mobile 375×812 and tablet 768×1024 (Browser pane): copy on top, face crops, 2-column chips and cards, pill scroller, stacked diagram + panel. No horizontal overflow.
+- Forward and reverse sweeps (70 sample points) give identical layer/pill states; native scroll → ScrollTrigger → scrub verified by ticking GSAP manually (pane hidden). No console errors.
+- Screenshots: `docs/shots/t2-desktop-frames-vs-site.jpg` (frame | site for D9–D19), `docs/shots/t2-mobile-375.jpg` (D10, D12, D15, D16, D18, D19).
+
+**Decisions / deviations**
+- Label → frame: `s1-hero` shows D9 then D10 (switch at its midpoint), `s5-pixels` shows D14 then D15. A transition label shows the frame it starts from (the previous scene is held for its first half).
+- D15 in Figma has the eyebrow overlapping the sub-headline (a mid-reorder snapshot). Built as eyebrow → sub-headline → headline, like D12.
+- D18 lights pill 5 ("Calculate"); the frame leaves it grey, which looks like an oversight since the headline is "Step 5". Change `step: 4` on `s8-calc` in config.js to match the frame exactly.
+- S7 owns the diagram and panel and holds them through S8; S8's layer only adds its copy.
+- D19 cards + connectors use the contain fit (with the UI) instead of the photo's cover fit; connector ends drift < 20px on the torso at 16:9 and match exactly at the frame aspect.
+- Desktop at non-1.406 aspects: UI is contain-fit (centred, with side or top margins), photos cover. Fine for the presentation; T13/T15 can revisit.
+
+**Known issues / notes**
+- Pane-hidden caveat still applies: screenshots and scroll tests need either `?still&at=` or manual `gsap.ticker.tick()` calls. Headless Chrome cannot capture below ~500px wide, so mobile shots come from the pane.
+- The browser caches CSS/JS from `python3 -m http.server` aggressively: after edits, hard-reload (or `fetch(url, {cache:'reload'})` each file) before checking.
+- Mobile pill scroller does not auto-scroll to the active pill yet (later pills sit off-screen on D16–D18). Do it in T6/T13.
+- Reduced motion: layers stack at 100svh each showing their end state (S8 copy and the floating pill row are hidden there). Not emulated here; T14 builds the real version.
+- `Blood pressure` wraps to two lines in the 375px chip grid; fine, but T13 can tune chip type.
+
+**Next step → T3:** in `js/scenes/s1-hero.js`, replace the midpoint `cut(...)` with motion: radial-mask reveal of `.hero__glow` over the D9 photo (grow from the forehead hotspot, ~frame px 894,386), chip stagger (`.chips .chip`), tags sliding to `data-state="up"` (animate `top` 421→407 on desktop, or `y: -14`), CTA fade-out. Then the 5 icon loops on `[data-id="body"]` inside each `.chip .icon` (time-based gsap tweens, toggled by a ScrollTrigger on the s1 window, off under reduced motion). Keep the layer's hold window (`sceneWindow`) as is.
