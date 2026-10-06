@@ -22,7 +22,7 @@ export const SCENES = [
   { id: 't4-beams',   kind: 'transition', frames: 'D16 → D17', title: 'Follow the light beams',  units: 1.4, module: 't4-beams.js' },
   { id: 's7-clean',   kind: 'scene',      frames: 'D17',       title: 'Step 4 · Clean noises',   units: 3.0, module: 's7-clean.js',   shows: [17], step: 4 },
   { id: 's8-calc',    kind: 'scene',      frames: 'D18',       title: 'Step 5 · Calculate',      units: 2.0, module: 's8-calc.js',    shows: [18], step: 5 },
-  { id: 't5-vitals',  kind: 'transition', frames: 'D18 → D19', title: 'Wave → vital signs',      units: 1.6, module: null },
+  { id: 't5-vitals',  kind: 'transition', frames: 'D18 → D19', title: 'Wave → vital signs',      units: 1.6, module: 't5-vitals.js' },
   { id: 's9-finale',  kind: 'scene',      frames: 'D19',       title: '5 vital signs measured',  units: 1.4, module: 's9-finale.js',  shows: [19] },
 ];
 

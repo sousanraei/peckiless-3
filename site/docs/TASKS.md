@@ -17,7 +17,7 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T9 | Follow the light beams (D16→D17) | done |
 | T10 | Scientific panel, Step 4 (D17) | done |
 | T11 | Calculate, Step 5 (D18) | done |
-| T12 | Wave → vitals + finale (D18→D19) | todo |
+| T12 | Wave → vitals + finale (D18→D19) | done |
 | T13 | Mobile choreography pass | todo |
 | T14 | Reduced motion + accessibility | todo |
 | T15 | Performance + QA | todo |

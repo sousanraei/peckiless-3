@@ -3,13 +3,14 @@
 // from the forehead hotspot; the CTA fades out, the tags lift 14px (desktop),
 // the results line and the five vital chips enter one at a time. Once the
 // chips are in, each icon runs a time-based loop on its glyph body only — the
-// shadow and glow rasters never move. Everything lands by ~85% of the segment,
-// so the rest of it (and the first half of t1-turn) holds D10.
+// shadow and glow rasters never move (lib/loops.js). Everything lands by ~85%
+// of the segment, so the rest of it (and the first half of t1-turn) holds D10.
 import { ASSETS } from '../assets.js';
 import { h, preloadSVG, boxStyle } from '../lib/dom.js';
 import { uiBox, copyBlock, chip, CHIPS } from '../lib/ui.js';
 import { sceneWindow, hold } from '../lib/static.js';
 import { ambient } from '../lib/ambient.js';
+import { iconLoops } from '../lib/loops.js';
 
 const { gsap } = window;
 
@@ -24,47 +25,6 @@ const place = (name, frame) => {
 // farthest frame corner plus the feather (--f in scenes.css).
 const HOT = [894, 386];
 const R_MAX = 1400;
-
-// Icon loops on the glyph's [data-id="body"]. Periods tie in with the vitals
-// the film reports later: 72 bpm heartbeat, 13 breaths/min.
-const LOOPS = {
-  'heart-rate': (b) =>
-    gsap.timeline({ repeat: -1, paused: true })
-      .to(b, { scale: 1.14, duration: 0.11, ease: 'power2.out' })
-      .to(b, { scale: 1, duration: 0.16, ease: 'power2.in' })
-      .to(b, { scale: 1.08, duration: 0.1, ease: 'power2.out' })
-      .to(b, { scale: 1, duration: 0.2, ease: 'power2.in' })
-      .to({}, { duration: 0.26 }), // ≈ 0.83 s per beat = 72 bpm
-  'blood-oxygen': (b) =>
-    gsap.to(b, { rotation: 360, duration: 7, ease: 'none', repeat: -1, paused: true }),
-  'blood-pressure': (b) =>
-    gsap.timeline({ repeat: -1, paused: true, defaults: { transformOrigin: '50% 100%' } })
-      .to(b, { scaleX: 1.1, scaleY: 0.86, duration: 0.32, ease: 'power2.in' })
-      .to(b, { scaleX: 0.96, scaleY: 1.06, duration: 0.28, ease: 'power2.out' })
-      .to(b, { scaleX: 1, scaleY: 1, duration: 0.3, ease: 'sine.inOut' })
-      .to({}, { duration: 0.5 }),
-  'breathing-rate': (b) =>
-    gsap.to(b, { scale: 1.08, duration: 2.3, ease: 'sine.inOut', yoyo: true, repeat: -1, paused: true }),
-  'glucose': (b) =>
-    gsap.to(b, { rotation: '+=60', duration: 0.9, ease: 'power2.inOut', repeat: -1, repeatDelay: 1.1, paused: true }),
-};
-
-function iconLoops(chips) {
-  return chips.flatMap((el) => {
-    const name = CHIPS.find((c) => el.classList.contains(`chip--${c.name}`)).name;
-    const body = el.querySelector('[data-id="body"]');
-    const sparkles = el.querySelector('[data-id="sparkles"]');
-    gsap.set(body, { transformOrigin: '50% 50%' });
-    const loops = [LOOPS[name](body)];
-    if (sparkles) {
-      loops.push(gsap.to(sparkles.children, {
-        opacity: 0.25, duration: 0.9, ease: 'sine.inOut', paused: true,
-        stagger: { each: 0.35, repeat: -1, yoyo: true },
-      }));
-    }
-    return loops;
-  });
-}
 
 export function build(tl, ctx) {
   const { layer, isMobile, reduced } = ctx;
@@ -137,5 +97,5 @@ export function build(tl, ctx) {
     { scale: 1, rotation: 0, autoAlpha: 1, duration: 0.14 * d, ease: 'back.out(2.2)', stagger: each }, chipsAt + 0.05 * d);
 
   // Icon loops run while the chips are on screen (through the hold into t1).
-  ambient(tl, ctx, chipsAt, win.to, iconLoops(chips));
+  ambient(tl, ctx, chipsAt, win.to, iconLoops(chips.map((c) => c.querySelector('.icon'))));
 }

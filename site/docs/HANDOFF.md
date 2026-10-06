@@ -416,3 +416,52 @@ Built on `claude/lucid-fermat-s5pcrr` (T8 + T9 + T10). That chain is still not m
 - If T10's noise, motion or seed changes, re-check `analyse(generate())` in node: hr/rr/spo2 must round to 72/13/96.
 
 **Next step → T12:** t5-vitals (D18 → D19). Continue `.calc__bvp` (block A) out of the panel into the heart-rate card trace. Morph the PSD, HRV, SpO₂ and envelope paths into the four card charts (same-structure polylines), fade in photo E, and bring back the icon loops and the CTA.
+
+---
+
+## T12 T5 Wave → vitals + finale (done, 2026-10-06)
+
+Built directly on `main` (T8–T11 are merged there now).
+
+**Built**
+- `js/scenes/t5-vitals.js` (new; `config.js` now points t5-vitals at it). One scrubbed state `f` 0 → 1 over the 1.6-unit segment; everything is rendered from `f`.
+  - **Morphs** (overlay `svg.vitals__svg`, stage px). Every one is a polyline with the same point count at both ends, so no wave is ever cut or swapped:
+    - BVP (block A) → heart-rate ECG trace. 330 points: a 301-step grid plus the ECG's own vertices inside the chart's clip window. The right end leads, so the pulse wave reads as running out of the panel.
+    - respiration envelope `.calc__env` → breathing-rate wave. 160 points; the target is the chart's exact cubic (x is linear in t, so y = c ∓ 3a·t(1−t)).
+    - SpO₂ R trace `.calc__ch--r` → blood-oxygen step line. 160 points, by arc length along the centreline of the chart's 2.41 px rects.
+    - 9 of the 16 HRV bars → the 9 glucose bars (a line whose stroke widens into a butt-capped 23.26 px bar; bars move as one piece).
+    - PSD `.calc__psd` → systolic bar fill; B trace `.calc__ch--b` → diastolic bar fill. 120 points each, 4.81 px round caps.
+  - Sources come from S8's svg via its root CTM (identity hand-off matrix at the end of S8; S8's x/y fades sit on other nodes). Targets come from each chart SVG's own geometry (viewBox + translate parsed at load) mapped through the `<img>` box with the card transform cleared. Geometry is measured lazily on the first render (fit.js places the boxes after `link()`) and again after a resize.
+  - Stroke colour, opacity and width interpolate from S8's computed style to the chart's (`#ce73a8`); width only changes over the last 40 % of each flight. S8's source paths hide for the segment (their copies sit exactly on them at f = 0).
+- Choreography (segment fractions):
+  - 0–0.2: S8 headline wipes out; the sub-headline and pills fade
+  - 0.04–0.3: diagram and panel fade
+  - 0.12–0.5: photo E and the finale background (`--bga`) dissolve in over S7's white
+  - morph windows start at 0.06 / 0.1 / 0.14 / 0.18–0.23 / 0.22 / 0.24, each 0.54 long, plus a 0.06 crossfade into the chart image
+  - each card settles 0.24 before its chart lands, and its icon glyph pops
+  - 0.5: S9 headline wipes in, sub-headline from 0.62
+  - 0.8–0.95: connectors
+  - from 0.7 to the end of the film: icon loops
+- `js/lib/loops.js` (new): S1's icon loops moved out of `s1-hero.js` as `iconLoops(iconEls)` so the D19 cards reuse them. S1 behaviour is unchanged.
+- `js/scenes/s9-finale.js`: the D9 **Contact us CTA returns** at its D9 spot (80, 478; clear of the cards) and fades in over S9 0–0.25. D19 itself has no CTA, so `s9-finale+0` is the exact D19 match and the CTA arrives just after it.
+- `js/scenes/s8-calc.js`: HRV bar lines carry `data-y2` (their drawn end, since S8 animates `y2`). Comment updated.
+- `css/scenes.css`: the finale background is `color-mix(… var(--bga, 1) …)` so it can fade; `.vitals__svg`.
+
+**Verified** (desktop app Browser pane, real Chrome, GSAP from cdnjs, 1440×1024 and 375×812)
+- No console errors.
+- Seam: `t5-vitals −0.001` and `+0.001` look identical (the overlay sits on S8's paths).
+- Landing: with the chart images hidden, the overlay lines alone at their landing reproduce all five card charts (white BP tracks excepted; they arrive with the image crossfade).
+- Forward sweep vs reverse sweep vs a direct jump from 0, 81 points from t5 −0.375 to the end of the film, across 161 elements (inline styles, path `d`, stroke attributes; icon loop bodies excluded): identical. Reversing therefore re-forms the S8 panel exactly.
+- Icon loops: driven by ticks, all five glyphs move in S9 and stand still in S8. S1's loops still run after the refactor.
+- Screenshots:
+  - `docs/shots/t12-desktop.jpg`: t5 0.001 / 0.2 / 0.4 / 0.55 / 0.61 / 0.85, the last with the morph lines forced visible and the chart images hidden (landing check)
+  - `docs/shots/t12-mobile-375.jpg`: t5 0.001 / 0.35 / 0.6 / S9 with the CTA
+
+**Known issues / notes**
+- The pane's python server sends no cache headers, so the browser can hold on to stale ES modules. Hard-reload (or `fetch(…, {cache:'reload'})`) after editing.
+- When the Browser pane is hidden, rAF stops: the GSAP ticker freezes and `?at=` (which waits a rAF) does nothing. That is not a bug in the code.
+- Reduced motion: t5 adds nothing (the static D18 → D19 cut) and the CTA is shown statically. T14 builds the full stacked alternative.
+- Mobile: the morphs work unchanged (all geometry is measured). T13 can tune the timing, since on mobile the lines travel from the panel to the bottom card grid.
+- The 7 HRV bars that aren't picked, and the lollipop dots, fade out with the panel.
+
+**Next step → T13:** mobile choreography pass (`mobileUnits` in config.js, camera targets, 375×812 and 768×1024 portrait and landscape).

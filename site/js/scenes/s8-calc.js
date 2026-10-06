@@ -12,8 +12,9 @@
 // Hand-off: at the S8 label our BVP line sits exactly on S7's (same samples,
 // same affine map), then S7's panel fades while the line glides into block A.
 // Segment fractions: hand-off 0–0.14, A 0.08–0.28, B 0.22–0.4, C 0.34–0.48,
-// D 0.46–0.62, E 0.6–0.78, F 0.74–0.9, hold to the end (T12 takes it from
-// there). Each block gets ≥ 0.28 viewport of scroll.
+// D 0.46–0.62, E 0.6–0.78, F 0.74–0.9, hold to the end (t5-vitals.js takes
+// it from there: BVP, PSD, HRV bars, R/B traces and the envelope morph into
+// the D19 card charts). Each block gets ≥ 0.28 viewport of scroll.
 import { h } from '../lib/dom.js';
 import { uiBox, copyBlock } from '../lib/ui.js';
 import { sceneWindow, hold } from '../lib/static.js';
@@ -149,7 +150,7 @@ function markup() {
     const bars = A.ibi.map((v, i) => {
       const xx = X(A.peaks[i + 1].t);
       const yy = mid - ((v - A.meanIbi) / dev) * (hh / 2);
-      return `<line x1="${f(xx, 1)}" x2="${f(xx, 1)}" y1="${mid}" y2="${f(yy, 1)}"/><circle cx="${f(xx, 1)}" cy="${f(yy, 1)}" r="2.6"/>`;
+      return `<line x1="${f(xx, 1)}" x2="${f(xx, 1)}" y1="${mid}" y2="${f(yy, 1)}" data-y2="${f(yy, 1)}"/><circle cx="${f(xx, 1)}" cy="${f(yy, 1)}" r="2.6"/>`;
     });
     out.push(`
       <g class="calc__block" data-block="hrv">
