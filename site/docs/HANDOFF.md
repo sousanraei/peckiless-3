@@ -627,3 +627,25 @@ No horizontal overflow at any size. No console errors in motion, `?reduced` or `
 - First-pass cost before the idle warm-up finishes: scrolling straight into the film within ~1 s of load can still hit one 10–12 ms frame.
 
 **Next step → T16:** publish `site/` as a multi-file private Artifact (page + `files` map; the 90 turn frames ≈ 3 MB fit), check it in the Browser pane, write `site/README.md` (run locally + scene map), give the user the link.
+
+## T16 Publish (done, 2026-10-06)
+
+Built directly on `main`.
+
+**Published:** https://claude.ai/artifact/HqidruF44hYMCb8mBAuzef (private; share from the page's Share menu). 160 files: the page + everything under `assets/`, `css/`, `js/` (≈ 3.7 MB). `docs/` and `tools/` are not published.
+
+**How**
+- The Artifact host wraps the page in its own doctype/html/head/body skeleton (with charset + `viewport-fit=cover` viewport). New `tools/artifact_page.py` strips those wrappers (and the duplicate charset/viewport metas) from `index.html` into a page file; it's published with `root` = `site/` and a `files` list so all relative paths (CSS, ES modules, `fetch('assets/svg/…')`, the turn sequence) resolve unchanged.
+- All external loads are on the Artifact CSP allowlist already (GSAP from cdnjs, fonts from Google Fonts).
+- `README.md` added: run locally, review switches, scene map (from `js/config.js`), folder layout, how to republish.
+
+**Checks**
+- Artifact file listing confirms all 160 files live with the right MIME types.
+- The Browser pane isn't signed in to claude.ai, so the live URL could not be opened there. Instead the exact stripped page was wrapped in an equivalent skeleton and served locally: the film scrubs through every label forward and back, no console errors, no horizontal overflow, finale reached at 375×812. Screenshots: `docs/shots/t16-artifact-wrap-desktop-s3.jpg`, `t16-artifact-wrap-mobile-375-s9.jpg`.
+- Photos missing in those shots are a hidden-pane artefact (async image decode never runs while the pane is hidden); the same happens with plain `index.html`, and forcing `img.decode()` paints them.
+
+**Known issues**
+- Query-string switches (`?debug`, `?reduced`, `?noseq`) don't reach the published page (the viewer strips them); reduced motion still follows the viewer's OS setting.
+- Owner should open the link once while signed in to confirm on real hardware (and run `?debug&autoscroll` locally in a visible tab, per T15).
+
+**Next step:** none in the plan. Polish requests from stakeholder review → republish the same page file to the same URL (see README).

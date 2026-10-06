@@ -21,4 +21,4 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T13 | Mobile choreography pass | done |
 | T14 | Reduced motion + accessibility | done |
 | T15 | Performance + QA | done |
-| T16 | Publish (Artifact) + README | todo |
+| T16 | Publish (Artifact) + README | done |
