@@ -225,3 +225,31 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - Reduced motion: scanner static at the brow (= D12) without trail; ROI boxes and headlines static. T14 does the real version.
 
 **Next step → T7:** t2-zoom (D13 → D15): push the camera into `[data-id="roi-cheek-right"]` of the S4 layer, hand off to the `cheek` photo (S5) with no jump, grow the small box into `#roi-big` (roi-d14.svg), then the swatch grid fill in S5. S4's boxes are settled from ~0.65 of its segment, and its hold runs to mid t2-zoom.
+
+---
+
+## T7 Zoom + pixel sampling (done, 2026-10-06)
+
+**Built**
+- `js/scenes/t2-zoom.js` (config: `module: 't2-zoom.js'`), `build()` makes the camera layer, `link()` drives it and S4/S5's copy.
+- **One camera, no swap**: photo C (`cheek`) is a crop of photo B (`front`). SIFT + RANSAC (35 inliers) gives C → B as a similarity at scale 1/7.4464, rotation −0.23° (ignored, ≤1 world px), origin (816.81, 380.20). The D14 big box maps back onto B at 903–999 × 420–468, i.e. right on the D13 viewer-right cheek box (911–993 × 408–470). So the camera is a world (= B frame px) with C placed inside it at that origin, scaled 1/Z. The camera transform goes from S4's photo fit to S5's photo fit composed with ×Z, scale interpolated **exponentially** about the transform's fixed point (constant perceived speed), progress `sine.inOut` over 0.06–0.9 of the segment. Fits are read from the photo boxes' `fit.js` transforms, so desktop and mobile both land exactly.
+- **B → C hand-off**: C fades in (u 0.26–0.5) with a rectangular feathered edge (`--fe`, 420 C px → 0 as u → 1, so C's edge never shows as a line over B); B stays underneath with a growing 0–0.7px blur until the camera lands, then hides.
+- **ROI box**: the viewer-right cheek rect morphs in world space into the world rect of `#roi-big` (`power2.inOut`, u 0.2–1) while its screen stroke eases 3 → 8 and radius 9.5 → 28 (set in world units as screen / scale). The other two boxes fade 0.04–0.22 as they fly out.
+- **Copy**: S4 headline + sub wipe out 0–0.3; the D14 copy (S5 layer) wipes in 0.6–0.9.
+- **Layering**: like t1-turn: `.layer--t2-zoom` is `z-index: -1` and visible for its whole segment; S4/S5 get `data-zoom="on"` for that time (no background, no `.photo`). Mobile: `.zoom__fade` repaints the photos' top fade band (sky above) in screen space, interpolated between the S4 and S5 bands.
+- **S5** (`s5-pixels.js`, segment fractions): D14 holds 0–0.12; copy reflow D14 → D15: sub wipes out 0.12–0.24, headline glides down into its D15 slot 0.2–0.5 (relative `top` = `--k` × measured `--shift`; the CSS rule now covers `.copy__h` too), sub is moved while clipped and wipes in at its D15 slot 0.42–0.6, then the D14 block cuts to the identical D15 block at 0.62. Swatches pop in (opacity 0 → 1, scale 0.2 → 1, `back.out`) on a diagonal grid stagger 0.24–0.84. D15 holds from ~0.85 into t3-skin.
+
+**Verified** (Browser pane, `?still` + `__film.master.time()`)
+- **No jump at B → C**: at t2-zoom 0.9999 vs s5-pixels 0.0001, photo C rect differs by ≤0.04px and the ROI box equals `#roi-big` exactly (643,294 709×367, stroke 8) — desktop 1440×1024 and mobile 375×812.
+- Copy cut at s5 0.62: D14 and D15 headline/sub positions identical (81.5,271.16 / 80,172.16).
+- Forward vs reverse sweep, 81 points from s4-roi+0.3 to t3-skin+0.3 (layer visibility + `data-zoom`, camera transform, box attrs, every copy line's clip/transform/top, all 112 swatches, C/B styles): identical.
+- Native scroll to `t2-zoom+0.5` → timeline 7.600 as expected. No console errors. Mobile: no horizontal overflow.
+- Screenshots: `docs/shots/t7-desktop.jpg` (t2 0.3 / 0.4 / 0.55 / 0.85, s5 0.45 / 0.9), `docs/shots/t7-mobile-375.jpg` (t2 0.55 / 0.8, s5 0.9).
+
+**Known issues / notes**
+- Mid-zoom, the sharp C detail reads as a soft "focus" patch inside a slightly blurred B (by design; B is only 0.62 px/frame px).
+- S5's static `shows: [14, 15]` / `?ref=` still switches at the S5 midpoint; matching frames now: D14 at `s5-pixels+0.05`, D15 at `s5-pixels+0.9`.
+- Reduced motion: zoom layer hidden; S5 keeps the static D14 → D15 cut.
+- Pane screenshots still need ~1s after a seek (they sometimes show the previous paint).
+
+**Next step → T8:** t3-skin (D15 → D16): collapse the 112 `.swatch` rects of the S5 layer into a point of light, raise the `skin` section (S6), draw the incoming beam to "Light in", then trace 6–10 vessel paths over `skin.webp` with time-based MotionPath pulses (via `ambient()`). S5 holds D15 from ~0.85 of its segment into the first half of t3-skin.

@@ -12,7 +12,7 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T4 | Head-turn footage (AI image-to-video) | done |
 | T5 | T1 transition (D10→D11) | done |
 | T6 | S2–S4 Science, scan, ROI (D11–D13) | done |
-| T7 | Zoom + pixel sampling (D13→D15) | todo |
+| T7 | Zoom + pixel sampling (D13→D15) | done |
 | T8 | Into the skin + vessel signals (D15→D16) | todo |
 | T9 | Follow the light beams (D16→D17) | todo |
 | T10 | Scientific panel, Step 4 (D17) | todo |

@@ -15,7 +15,7 @@ export const SCENES = [
   { id: 's2-science', kind: 'scene',      frames: 'D11',       title: 'The science behind',      units: 1.0, module: 's2-science.js', shows: [11], step: 0 },
   { id: 's3-scan',    kind: 'scene',      frames: 'D12',       title: 'Step 1 · Face scan',      units: 1.4, module: 's3-scan.js',    shows: [12], step: 1 },
   { id: 's4-roi',     kind: 'scene',      frames: 'D13',       title: 'Step 2 · ROI detection',  units: 1.0, module: 's4-roi.js',     shows: [13], step: 2 },
-  { id: 't2-zoom',    kind: 'transition', frames: 'D13 → D14', title: 'Zoom into cheek ROI',     units: 1.2, module: null },
+  { id: 't2-zoom',    kind: 'transition', frames: 'D13 → D14', title: 'Zoom into cheek ROI',     units: 1.2, module: 't2-zoom.js' },
   { id: 's5-pixels',  kind: 'scene',      frames: 'D14 → D15', title: 'Pixel sampling',          units: 1.0, module: 's5-pixels.js',  shows: [14, 15], step: 2 },
   { id: 't3-skin',    kind: 'transition', frames: 'D15 → D16', title: 'Into the skin',           units: 1.2, module: null },
   { id: 's6-vessels', kind: 'scene',      frames: 'D16',       title: 'Step 3 · Extract RGB',    units: 1.2, module: 's6-vessels.js', shows: [16], step: 3 },
