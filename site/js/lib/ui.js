@@ -7,13 +7,14 @@ import { h, svg, boxStyle, at } from './dom.js';
 // ---------- Frame boxes ----------
 
 // Photo in a frame box: cover-fit on desktop; on mobile the `focusM` rect
-// (frame px) is fitted into `targetM` (fractions of the stage).
-export function photoBox(name, frame, { focusM, targetM = '0 0.4 1 0.5', overlays = '' } = {}) {
+// (frame px) is fitted into `targetM` (fractions of the stage). `alt` describes
+// what the scene shows (empty = decorative).
+export function photoBox(name, frame, { focusM, targetM = '0 0.4 1 0.5', overlays = '', alt = '' } = {}) {
   const p = ASSETS.photos[name];
   const b = p.frames[frame];
   return h(`
     <div class="fbox photo" data-fit="cover" data-m-fit="focus" data-m-focus="${focusM}" data-m-target="${targetM}" data-m-fill>
-      <img class="photo__img photo__img--${name}" src="${p.file}" alt="" decoding="async"
+      <img class="photo__img photo__img--${name}" src="${p.file}" alt="${alt}" decoding="async"
         style="${boxStyle([b.left, b.top, b.width, b.height])}">
       ${overlays}
     </div>`);
@@ -38,7 +39,9 @@ const GRAD = {
   two: [[0, 37.73], [124.38, 210.57]],
 };
 const SUB_PX = 46.2; // desktop sub-headline font size
-const STOPS = [['#0baa7a', 0], ['#087957', 0.269231], ['#ae1d72', 0.990385]];
+// First stop darkened from the frame's #0baa7a (2.3:1 on the sky) to #078f67
+// (3.1:1) so the large sub-headline passes WCAG AA for large text (T14).
+const STOPS = [['#078f67', 0], ['#087957', 0.269231], ['#ae1d72', 0.990385]];
 
 function gradStyle(kind) {
   const [p0, p1] = GRAD[kind];

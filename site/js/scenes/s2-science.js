@@ -16,7 +16,7 @@ export function build(tl, ctx) {
   const { layer, reduced } = ctx;
   layer.classList.add('scene');
   layer.append(
-    photoBox('front', 11, { focusM: FACE_B, targetM: FACE_B_TARGET }),
+    photoBox('front', 11, { focusM: FACE_B, targetM: FACE_B_TARGET, alt: 'The same woman now looking straight at the camera' }),
     uiBox(copyBlock({ head: ['The science', 'behind', 'Pecki!less'], order: 'h-sub' })),
   );
   hold(tl, ctx, layer, sceneWindow(tl, ctx.scene.id));

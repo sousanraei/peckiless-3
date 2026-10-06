@@ -67,6 +67,7 @@ export function build(tl, ctx) {
     focusM: '560 230 760 640',
     targetM: '0 0.38 1 0.5',
     overlays: vesselsMarkup() + svg('beams-d16.svg', 'class="overlay beams"') + labels,
+    alt: 'Cross-section of skin with red and blue blood vessels; light enters the skin and is reflected back from the vessels',
   });
   layer.append(photo, uiBox(copyBlock({ head: ['Step 3:', 'Extract RGB'] })));
   const win = sceneWindow(tl, ctx.scene.id);

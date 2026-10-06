@@ -539,3 +539,48 @@ Everything else (S1 chips, turn, scan, ROI, zoom, pixels, skin, beams, vitals mo
 - The Browser pane hides its tab when the app pane isn't shown. rAF then stops, so scroll tests need `gsap.ticker.tick()` pumping (see Verified).
 
 **Next step → T14:** reduced motion and accessibility (stacked static end states, fade-only reveals, heading order, alt text, focus states, contrast).
+
+---
+
+## T14 Reduced motion + accessibility (done, 2026-10-06)
+
+Built directly on `main`.
+
+**Reduced motion** (`prefers-reduced-motion: reduce`, or `?reduced` in the URL to force it for review, `REDUCED_QUERY` in config.js)
+- The film becomes a stacked page: no pinned stage, no ScrollTrigger, one full-screen (100svh) section per **scene** in story order (S1 → S9; 9 sections). Every scene shows its static end state (the module `reduced` branches from T2–T13, unchanged).
+- All transition layers are hidden by kind: main.js sets `data-kind` on each layer and CSS hides `.is-reduced .layer[data-kind="transition"]`. Before this, the empty t3-skin and t5-vitals layers left two blank screens.
+- **S8 Step 5 has its own section now.** Previously S8 was hidden and its analysis replaced S7's panel under the "Step 4" headline. In reduced mode s8-calc.js clones S7's `#diagram` and `.panel-box` (ids stripped, diagram clone `aria-hidden`), hides the clone's `.sp` and draws the analysis into it. S7 keeps its BVP end state.
+- **Step pills:** shared.js gives each stepped scene its own static copy of the row with that scene's `data-active` (the shared layer stays hidden). On mobile each copy's scroller is centred on the active pill.
+- **Fade-only reveals:** `js/lib/reveal.js` veils every scene section except the first and fades it in once (opacity 0.6 s CSS transition) when 20 % of it enters the viewport. Opacity only; nothing moves.
+- **No loops, no image sequence:** ambient loops were already never created under reduced motion. t1-turn's sequence preload now returns when `REDUCED_QUERY` matches, so the 90 frames are never fetched (verified: 0 `turn-*.webp` requests in reduced mode, 90 in motion mode). If the user switches reduced motion off, t1-turn's `link()` starts the preload. The mobile pill scroller uses instant scrolling in reduced mode, and `html { scroll-behavior: auto }` under the media query.
+
+**Accessibility**
+- **Heading order:** one `h1` (S1), an `h2` per scene, `h3` for the S7 stage titles and D19 card titles. S7 and S9 now put their copy block before the panel/cards in the DOM so each `h2` precedes its `h3`s (visual stacking unchanged; checked on desktop and 375px).
+- **Alt text:** `photoBox()` takes `alt`. S2, S3, S4, S5, S6 and S9 photos describe what the scene shows; S1 already had one. Decorative layers (glow photo, icon rasters, chart images next to their live values) stay `alt=""`. S7's diagram is `role="img"` with a label; S8's analysis already had one.
+- **Step pills:** `<ol aria-label="How it works">`, the newest lit pill carries `aria-current="step"` (updated by a MutationObserver on `data-active`, in the film too), the number dots are `aria-hidden` (the list order carries the number).
+- **Focus states:** `:focus-visible` is a 3 px navy (`--c-focus`) outline at 3 px offset over a 6 px white halo, so it reads on the light UI and on photos (the old mint ring was 1.2–1.6:1). Nav links get a 4 px radius for the ring. Checked with Tab / Shift+Tab on the nav CTA (`docs/shots/t14-focus-ring-desktop.jpg`).
+- **`#contact`:** the "Contact us" links pointed to a missing id. An empty `#contact` anchor after the track now lands on the end of the film (S9 with its CTA) in both modes.
+
+**Contrast check** (WCAG 2.2 AA; ratios computed from the token hex values)
+| Pair | Before | After | Fix |
+|---|---|---|---|
+| sub-headline gradient start `#0baa7a` on sky (46px, large) | 2.3 | 3.1 | first stop → `#078f67` (ui.js `STOPS`, `--grad-accent`) |
+| inactive pill label `#8f9ea7` on `#f3f3f3` (26px bold, large) | 2.5 | 3.5 | `--c-muted-ink #74838c` |
+| S7 eyebrow / stage track / ticks / `.dim` (11–12px) `#8f9ea7`, `#6b7c87` on white | 2.8 / 4.3 | 5.2 | `--c-muted-text #5d6f7a` |
+| S8 formula subscripts R `#ef4444`, B `#01aeff` (9px) on white | 3.8 / 2.5 | 4.8 / 5.9 | `--c-r-ink #dc2626`, `--c-b-ink #0369a1` (text only; lines keep the frame colours) |
+| focus ring | 1.2–1.6 | 10.9 | navy + white halo |
+Passing already: headline navy on sky 10.9, eyebrow plum 9.1, tag ink 5.8, CTA ink on mint 11.8, chip label on chip green 4.7, active pill 14.7, nav 19.7, card text 12.7, calc notes 5.2, calc magenta 6.5, band label 4.8, D16 label pills 18.9.
+The frame hex values stay in tokens.css for strokes and fills; the new tokens are text-only.
+
+**Verified** (desktop app Browser pane, real Chrome; reduced via `?reduced`, since the pane can't emulate the media query)
+- Desktop 800×600 pane and 375×812: all 9 sections in order, each matching its end state, pills lit per step, fade-in on scroll, no horizontal overflow (scrollWidth 375), no console errors.
+- Motion mode unchanged: duration 21, the turn sequence loads (90 frames), `?at=` seeks, `aria-current` follows the pills (S3 → Face scan, S6 → Extract RGB, S8 → Calculate), no console errors.
+- Screenshots: `docs/shots/t14-reduced-desktop-s6.jpg`, `t14-reduced-desktop-s8.jpg`, `t14-reduced-mobile-375-s8.jpg`, `t14-reduced-mobile-375-s9.jpg`, `t14-focus-ring-desktop.jpg`.
+
+**Known issues / notes**
+- Design deviations to sign off: the gradient's first stop is a touch deeper green, and the inactive pill labels are a touch darker. Revert = `STOPS` in ui.js + `--grad-accent`, and `--c-muted-ink` → `var(--c-muted)`.
+- Not changed: the white step numbers on the mint / grey pill dots (1.6:1 / 1.4:1) are frame design; they are `aria-hidden` and the label next to each carries the meaning.
+- In motion mode only the current scene is in the accessibility tree (others are `visibility: hidden`), which is expected for a scroll film. Screen-reader users with reduced motion get the full stacked story.
+- S7's five stage titles (`h3`) are all in the accessibility tree in reduced mode (only the BVP one is visible). They read as the list of processing stages.
+
+**Next step → T15:** performance + QA (Lighthouse / perf trace, `will-change` only on the active scene, lazy-decoded images, full forward/reverse scroll at desktop, tablet and mobile sizes).

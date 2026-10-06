@@ -264,7 +264,7 @@ export function build(tl, ctx) {
   // Desktop: both boxes contain-fit like the UI, so they line up with the
   // frame. Mobile: the diagram row sits under the copy, the panel below it.
   const diagram = h(`
-    <div class="fbox diagram" id="diagram" data-fit="contain" data-m-fit="focus" data-m-focus="-28 440 718 300" data-m-target="0.02 0.27 0.96 0.2">
+    <div class="fbox diagram" id="diagram" role="img" aria-label="Two light beams feed an RGB channel box whose red, green and blue signals flow into the analysis panel" data-fit="contain" data-m-fit="focus" data-m-focus="-28 440 718 300" data-m-target="0.02 0.27 0.96 0.2">
       ${svg('rgb-d17.svg', 'class="overlay rgb"')}
       <p class="rgb-label">RGB channels<br>Derived from facial scan</p>
     </div>`);
@@ -280,7 +280,8 @@ export function build(tl, ctx) {
       <rect x="-1500" y="669.54" width="1490" height="9.1" />
     </g>`);
   const copy = copyBlock({ head: ['Step 4:', 'Clean noises'] });
-  layer.append(diagram, panel, uiBox(copy));
+  // Copy first in the DOM so the h2 precedes the panel's h3s (heading order).
+  layer.append(uiBox(copy), diagram, panel);
 
   const win = sceneWindow(tl, ctx.scene.id);
   const winCalc = sceneWindow(tl, 's8-calc');

@@ -102,8 +102,10 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 |---|---|---|---|
 | `.chrome` > `#nav` | index.html | all | persistent nav. A frame box fixed to the viewport (contain-fit, top-anchored) on desktop; plain fixed bar on mobile |
 | `#stage` | index.html | all | pinned stage; every scene appends one `.layer` |
-| `.layer--<scene-id>` | main.js | its scene | one per config entry, created in config order (transitions stay empty until their task) |
-| `.layer--shared` > `#pills` | js/shared.js | S2–S8 | step-pill row. `data-active` = number of lit pills, set from each scene's `step` in config.js. Lighting a pill eases its colours (CSS transition) and pops its `.pill__dot` (scrubbed keyframes, T6); on mobile the scroller centres the newest lit pill |
+| `.layer--<scene-id>` | main.js | its scene | one per config entry, created in config order. `data-kind` = `scene` / `transition` (config `kind`); reduced motion hides transitions and stacks the scenes |
+| `#contact` | index.html | nav CTA, S1/S9 CTAs | empty anchor after the track: "Contact us" jumps to the end of the film (S9) in both modes |
+| `.pills` (no id) in each stepped `.layer` | js/shared.js | S2–S8 (reduced motion only) | static copy of the pill row per scene with its own `data-active` (T14) |
+| `.layer--shared` > `#pills` | js/shared.js | S2–S8 | step-pill row. `data-active` = number of lit pills, set from each scene's `step` in config.js. Lighting a pill eases its colours (CSS transition) and pops its `.pill__dot` (scrubbed keyframes, T6); on mobile the scroller centres the newest lit pill. The newest lit pill has `aria-current="step"`; dots are `aria-hidden` |
 | `#diagram` | s7-clean.js | S7, S8, T4 (beams → arrows), T5 | RGB diagram: inlined `rgb-d17.svg` + "RGB channels" label + `[data-id="arrow-tails"]` (off-canvas shaft extensions) |
 | `#calc-panel` > `.panel__body` | s7-clean.js | S7 (T10), S8 (T11), T5 | the calculation panel as HTML (the SVG's own `calc-panel` rect is hidden). Draw panel content into `.panel__body` |
 | `#calc-panel .sp` (`.sp__plot`, `.sp__line` ×3, `.sp__stage[data-i]`, `.sp__title`, `.sp__track`, `.sp__f`) | s7-clean.js | S7 (T10), S8 (T11) | Step 4 signal panel, panel-local px (686×583); plot area 92,150 554×286. Ends on the BVP stage (stage 5) and holds it into S8 for T11 to take over |

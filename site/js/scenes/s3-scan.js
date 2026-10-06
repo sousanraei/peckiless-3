@@ -62,7 +62,12 @@ export function build(tl, ctx) {
   const { layer, reduced } = ctx;
   layer.classList.add('scene');
   layer.append(
-    photoBox('front', 12, { focusM: FACE_B, targetM: FACE_B_TARGET, overlays: SCANNER }),
+    photoBox('front', 12, {
+      focusM: FACE_B,
+      targetM: FACE_B_TARGET,
+      overlays: SCANNER,
+      alt: 'A glowing green scan line passes over her face from top to bottom',
+    }),
     uiBox(copyBlock({ head: ['Step 1:', 'Face scan'] })),
   );
   hold(tl, ctx, layer, sceneWindow(tl, ctx.scene.id));

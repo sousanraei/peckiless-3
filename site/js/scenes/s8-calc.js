@@ -225,15 +225,27 @@ export function build(tl, ctx) {
   layer.append(uiBox(copyBlock({ head: ['Step 5:', 'Calculate'] })));
   hold(tl, ctx, layer, sceneWindow(tl, ctx.scene.id));
 
-  const body = ctx.stage.querySelector('#calc-panel .panel__body');
-  const sp = body.querySelector('.sp'); // S7's signal panel
   const calc = h(markup());
-  body.append(calc);
   if (reduced) {
-    // End state: the analysis replaces S7's panel.
-    if (sp) sp.style.display = 'none';
+    // Stacked end states: S8 gets its own copy of S7's diagram and panel (S7
+    // keeps its BVP end state) with the analysis in place of the signal panel.
+    layer.classList.replace('scene--overlay', 'scene--light');
+    const s7 = ctx.stage.querySelector('.layer--s7-clean');
+    const boxes = [s7.querySelector('#diagram'), s7.querySelector('.panel-box')].map((el) => {
+      const c = el.cloneNode(true);
+      c.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
+      c.removeAttribute('id');
+      return c;
+    });
+    boxes[0].setAttribute('aria-hidden', 'true'); // S7 already describes the diagram
+    boxes[1].querySelector('.sp').style.display = 'none';
+    boxes[1].querySelector('.panel__body').append(calc);
+    layer.prepend(...boxes);
     return;
   }
+  const body = ctx.stage.querySelector('#calc-panel .panel__body');
+  const sp = body.querySelector('.sp'); // S7's signal panel
+  body.append(calc);
 
   const dur = ctx.duration;
   const p = (fr) => ctx.start + fr * dur;

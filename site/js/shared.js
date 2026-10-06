@@ -3,6 +3,9 @@
 //   `step` in config.js to the last; `data-active` = number of lit pills.
 //   Lighting a pill: colours ease in (CSS transition) and its dot pops
 //   (scrubbed, so it reverses). Mobile: the scroller follows the active pill.
+//   The newest lit pill carries aria-current="step".
+//   Reduced motion: no shared layer; every stepped scene gets its own static
+//   copy of the row with its pills lit.
 import { SCENES, STEPS } from './config.js';
 import { h, at } from './lib/dom.js';
 import { uiBox } from './lib/ui.js';
@@ -16,15 +19,25 @@ const PILLS = [[130.5, 202], [349.5, 248], [614.5, 226], [857.5, 239], [1113.5, 
 export function buildShared(stage, tl, { reduced, isMobile }) {
   const layer = h('<section class="layer layer--shared" aria-label="Steps"></section>');
   const row = h(`
-    <ol class="pills" id="pills" data-active="0">
+    <ol class="pills" id="pills" data-active="0" aria-label="How it works">
       ${STEPS.map((label, i) => `
         <li class="pill at" style="${at([PILLS[i][0] - 0.5, 833, PILLS[i][1] + 1, 65])}">
-          <span class="pill__dot">${i + 1}</span><span class="pill__label">${label}</span>
+          <span class="pill__dot" aria-hidden="true">${i + 1}</span><span class="pill__label">${label}</span>
         </li>`).join('')}
     </ol>`);
   layer.append(uiBox(row));
   stage.append(layer);
-  if (reduced) return { layer, row };
+  if (reduced) {
+    SCENES.filter((s) => s.step !== undefined).forEach((s) => {
+      const copy = row.cloneNode(true);
+      copy.removeAttribute('id');
+      copy.dataset.active = s.step;
+      markCurrent(copy);
+      stage.querySelector(`.layer--${s.id}`).append(uiBox(copy));
+      if (isMobile) requestAnimationFrame(() => follow(copy, 'auto'));
+    });
+    return { layer, row };
+  }
 
   const stepped = SCENES.filter((s) => s.step !== undefined);
   const first = sceneWindow(tl, stepped[0].id);
@@ -45,18 +58,24 @@ export function buildShared(stage, tl, { reduced, isMobile }) {
       }, at);
     }
   });
-  if (isMobile) followActive(row);
+  new MutationObserver(() => {
+    markCurrent(row);
+    if (isMobile) follow(row, 'smooth');
+  }).observe(row, { attributes: true, attributeFilter: ['data-active'] });
   return { layer, row };
 }
 
+function markCurrent(row) {
+  const n = Number(row.dataset.active);
+  [...row.children].forEach((li, i) => li.toggleAttribute('aria-current', i === n - 1));
+  if (n) row.children[n - 1].setAttribute('aria-current', 'step');
+}
+
 // Mobile pill scroller: keep the newest lit pill in view.
-function followActive(row) {
-  const follow = () => {
-    const n = Number(row.dataset.active);
-    const pill = row.children[Math.max(0, n - 1)];
-    if (!pill || row.scrollWidth <= row.clientWidth) return;
-    const left = Math.max(0, pill.offsetLeft - (row.clientWidth - pill.offsetWidth) / 2);
-    row.scrollTo({ left, behavior: 'smooth' });
-  };
-  new MutationObserver(follow).observe(row, { attributes: true, attributeFilter: ['data-active'] });
+function follow(row, behavior) {
+  const n = Number(row.dataset.active);
+  const pill = row.children[Math.max(0, n - 1)];
+  if (!pill || row.scrollWidth <= row.clientWidth) return;
+  const left = Math.max(0, pill.offsetLeft - (row.clientWidth - pill.offsetWidth) / 2);
+  row.scrollTo({ left, behavior });
 }

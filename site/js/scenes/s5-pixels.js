@@ -24,6 +24,7 @@ export function build(tl, ctx) {
     focusM: '643 294 709 367',
     targetM: '0.03 0.44 0.94 0.34',
     overlays: svg('roi-d14.svg', 'class="overlay roi-big"') + svg('swatches-d15.svg', 'class="overlay swatches"'),
+    alt: 'Close-up of her cheek; the region box fills with a grid of sampled skin-colour pixels',
   });
   const d14 = copyBlock({ head: HEAD, order: 'h-sub', cls: 'copy--d14' });
   const d15 = copyBlock({ head: HEAD, cls: 'copy--d15' });

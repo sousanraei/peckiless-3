@@ -19,6 +19,6 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T11 | Calculate, Step 5 (D18) | done |
 | T12 | Wave → vitals + finale (D18→D19) | done |
 | T13 | Mobile choreography pass | done |
-| T14 | Reduced motion + accessibility | todo |
+| T14 | Reduced motion + accessibility | done |
 | T15 | Performance + QA | todo |
 | T16 | Publish (Artifact) + README | todo |

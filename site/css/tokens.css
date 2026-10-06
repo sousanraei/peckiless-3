@@ -31,6 +31,13 @@
   --c-panel: #f3f3f3;         /* step pills, calculation panel (D11–D18) */
   --c-line: #d1dadf;          /* inactive pill stroke/dot, panel stroke, nav button stroke (all) */
   --c-muted: #8f9ea7;         /* inactive step-pill label (D11–D18) */
+  /* T14 contrast (WCAG 2.2 AA): text versions of colours that fail on their
+     background. The frame values stay for strokes and fills. */
+  --c-muted-ink: #74838c;     /* inactive pill label, 26px bold: 3.5:1 on --c-panel (frame #8f9ea7: 2.5:1) */
+  --c-muted-text: #5d6f7a;    /* small grey text on white: 5.2:1 (frame #8f9ea7: 2.8:1) */
+  --c-r-ink: #dc2626;         /* R channel as text: 4.8:1 on white (#ef4444: 3.8:1) */
+  --c-b-ink: #0369a1;         /* B channel as text: 5.9:1 on white (#01aeff: 2.5:1) */
+  --c-focus: #042d45;         /* focus ring (navy) on a white halo, see base.css */
   --c-nav-bg: rgb(255 255 255 / .64); /* nav bar fill (all) */
   --c-nav-line: #d6e0e8;      /* nav bar inner border (all) */
   --c-label-bg: rgb(255 255 255 / .65); /* D16 label pills */
@@ -47,7 +54,7 @@
 
   /* Sub-headline gradient (all). Figma runs it along a diagonal in user space
      (D9: (80,366)→(110,490)); a 100deg linear-gradient on the text box is close. */
-  --grad-accent: linear-gradient(100deg, #0baa7a 0%, #087957 26.9%, #ae1d72 99%);
+  --grad-accent: linear-gradient(100deg, #078f67 0%, #087957 26.9%, #ae1d72 99%);
   --grad-scan: linear-gradient(90deg, #00816d 0%, #00816d 31.7%, #b4fff3 49%, #00816d 64.4%, #00816d 100%);
 
   /* Type */

@@ -26,10 +26,15 @@ export function build(tl, ctx) {
     <a class="cta cta--finale" href="#contact">Contact us
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h13.3M8.3 1.7 14.6 8l-6.3 6.3" /></svg>
     </a>`);
+  // Copy before the cards in the DOM so the h2 precedes the card h3s.
   layer.append(
-    photoBox('finale', 19, { focusM: '700 140 460 520', targetM: '0 0.36 1 0.34' }),
-    cards,
+    photoBox('finale', 19, {
+      focusM: '700 140 460 520',
+      targetM: '0 0.36 1 0.34',
+      alt: 'The woman with an X-ray style view of her heart and lungs, surrounded by her five vital-sign results',
+    }),
     uiBox(copyBlock({ head: ['5 vital signs', 'measured'], order: 'h-sub' }), cta),
+    cards,
   );
   hold(tl, ctx, layer, sceneWindow(tl, ctx.scene.id));
   if (reduced) return;

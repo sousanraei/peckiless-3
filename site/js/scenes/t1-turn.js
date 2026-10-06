@@ -16,6 +16,7 @@
 // point. Reduced motion: this layer is hidden (the stacked end states show
 // D10 and D11); T14 can reuse the fallback for its fade-only version.
 import { ASSETS } from '../assets.js';
+import { REDUCED_QUERY } from '../config.js';
 import { h, boxStyle } from '../lib/dom.js';
 import { hold } from '../lib/static.js';
 import { headLines, wipeOut, wipeIn } from '../lib/wipe.js';
@@ -66,7 +67,8 @@ function loadOrder(n) {
 
 let started = false;
 function preload() {
-  if (started || seq.failed || forceFallback) return;
+  // Reduced motion never shows the turn, so it never fetches the frames.
+  if (started || seq.failed || forceFallback || matchMedia(REDUCED_QUERY).matches) return;
   started = true;
   const queue = loadOrder(seq.count);
   const next = async () => {
@@ -139,6 +141,7 @@ export function build(tl, ctx) {
 export function link(tl, ctx) {
   const { layer, stage, reduced, isMobile } = ctx;
   if (reduced) return;
+  if (document.readyState === 'complete') preload(); // e.g. reduced motion was just switched off
 
   const d = ctx.duration;
   const S = tl.labels[ctx.scene.id];

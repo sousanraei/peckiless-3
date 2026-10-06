@@ -1,9 +1,10 @@
 // Boots the film: builds one layer per scene, one master timeline with a
 // label per scene, and binds it to native scroll via ScrollTrigger (scrub).
-import { SCENES, MOBILE_QUERY, SCRUB } from './config.js';
+import { SCENES, MOBILE_QUERY, REDUCED_QUERY, SCRUB } from './config.js';
 import { buildShared } from './shared.js';
 import { fitAll } from './lib/fit.js';
 import { initDebug } from './debug.js';
+import { reveal } from './lib/reveal.js';
 
 const { gsap, ScrollTrigger, MotionPathPlugin, DrawSVGPlugin } = window;
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, DrawSVGPlugin);
@@ -25,7 +26,7 @@ mm.add(
   {
     isDesktop: `not all and ${MOBILE_QUERY}`,
     isMobile: MOBILE_QUERY,
-    reduced: '(prefers-reduced-motion: reduce)',
+    reduced: REDUCED_QUERY,
   },
   (mmCtx) => {
     const { isMobile, reduced } = mmCtx.conditions;
@@ -54,6 +55,7 @@ mm.add(
       const layer = document.createElement('section');
       layer.className = `layer layer--${scene.id}`;
       layer.dataset.scene = scene.id;
+      layer.dataset.kind = scene.kind;
       layer.setAttribute('aria-label', scene.title);
       stage.append(layer);
       const ctx = {
@@ -82,6 +84,8 @@ mm.add(
     master.set({}, {}, at);
     app.master = master;
 
+    // Reduced motion: no scroll binding; each stacked scene fades in once.
+    const unreveal = reduced ? reveal(stage) : null;
     if (!reduced) {
       app.trigger = ScrollTrigger.create({
         trigger: track,
@@ -94,6 +98,7 @@ mm.add(
 
     return () => {
       cleanups.forEach((fn) => fn());
+      unreveal?.();
       app.trigger = null;
       app.master = null;
     };

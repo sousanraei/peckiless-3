@@ -25,6 +25,7 @@ export function build(tl, ctx) {
       focusM: FACE_B,
       targetM: FACE_B_TARGET,
       overlays: svg('roi-d13.svg', 'class="overlay roi"'),
+      alt: 'Three boxes mark the regions of interest on her forehead and both cheeks',
     }),
     uiBox(copyBlock({ head: ['Step 2:', 'ROI detection'] })),
   );

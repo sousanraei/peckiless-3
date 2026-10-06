@@ -9,7 +9,15 @@ body {
 }
 img, svg, canvas { display: block; max-width: 100%; }
 a { color: inherit; }
-:focus-visible { outline: 3px solid var(--c-mint); outline-offset: 3px; }
+:focus-visible {
+  /* Navy ring on a white halo: ≥ 3:1 against the light UI and the photos. */
+  outline: 3px solid var(--c-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--c-white);
+}
+.nav__links a { border-radius: 4px; }
+/* Reduced motion: never animate scrolling (anchor jumps, pill scroller). */
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 /* ---------- Scroll track + pinned stage ---------- */
 /* --track-units is set by main.js from config.js (sum of scene units). */

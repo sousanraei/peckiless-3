@@ -15,6 +15,12 @@ export const BREAKPOINT = 900; // px; desktop ≥ BREAKPOINT
 // the `@media (max-width: 899px) and (max-aspect-ratio: 1/1)` blocks in css/.
 export const MOBILE_QUERY = `(max-width: ${BREAKPOINT - 1}px) and (max-aspect-ratio: 1/1)`;
 
+// Reduced motion (T14): the film becomes a stacked sequence of the static end
+// states with fade-only reveals. `?reduced` in the URL forces it for review.
+export const REDUCED_QUERY = new URLSearchParams(location.search).has('reduced')
+  ? 'all'
+  : '(prefers-reduced-motion: reduce)';
+
 export const SCENES = [
   { id: 's1-hero',    kind: 'scene',      frames: 'D9 → D10',  title: 'Hero glow + vital chips', units: 2.0, module: 's1-hero.js',    shows: [9, 10] },
   { id: 't1-turn',    kind: 'transition', frames: 'D10 → D11', title: 'Head turn',               units: 1.6, module: 't1-turn.js' },
