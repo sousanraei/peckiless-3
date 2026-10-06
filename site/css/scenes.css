@@ -12,6 +12,16 @@
 .layer--s9-finale { background: var(--c-finale-top); }
 
 .photo__img { position: absolute; }
+
+/* S1: the D10 glow photo is revealed through a feathered radial mask that
+   grows from the forehead hotspot (--gx/--gy, set in s1-hero.js). --r is
+   scrubbed; --f is the soft edge. D10 = tags 14px higher (y: -14 in JS). */
+.hero__glow {
+  --r: 0px;
+  --f: 220px;
+  -webkit-mask-image: radial-gradient(circle at var(--gx) var(--gy), #000 calc(var(--r) - var(--f)), transparent var(--r));
+  mask-image: radial-gradient(circle at var(--gx) var(--gy), #000 calc(var(--r) - var(--f)), transparent var(--r));
+}
 .overlay {
   position: absolute;
   left: 0;
@@ -61,7 +71,6 @@
   padding: 0;
   list-style: none;
 }
-.tags[data-state="up"] { top: 407px; }
 .tags li {
   height: 29px;
   padding: 1px 0 0 10.6px;
@@ -288,7 +297,6 @@
   .copy--d15 { position: absolute; left: 20px; right: 20px; top: calc(var(--nav-top) + var(--nav-h) + 24px); width: auto; }
 
   .tags { position: relative; left: auto; top: auto; margin-top: 14px; gap: 8px; }
-  .tags[data-state="up"] { top: auto; }
   .tags li { width: auto !important; height: 24px; padding: 0 10px; font-size: 10px; line-height: 22px; }
   .cta {
     position: relative;

@@ -45,6 +45,11 @@ mm.add(
     });
     master.addLabel('end', at);
 
+    // Teardown for things the matchMedia context can't revert itself
+    // (ticker callbacks); scenes register them with ctx.onCleanup(fn).
+    const cleanups = [];
+    const onCleanup = (fn) => cleanups.push(fn);
+
     SCENES.forEach((scene, i) => {
       const layer = document.createElement('section');
       layer.className = `layer layer--${scene.id}`;
@@ -59,6 +64,7 @@ mm.add(
         reduced,
         duration: unitsOf(scene),
         start: master.labels[scene.id],
+        onCleanup,
       });
     });
     buildShared(stage, master, { isMobile, reduced });
@@ -82,6 +88,7 @@ mm.add(
     }
 
     return () => {
+      cleanups.forEach((fn) => fn());
       app.trigger = null;
       app.master = null;
     };

@@ -115,3 +115,29 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - `Blood pressure` wraps to two lines in the 375px chip grid; fine, but T13 can tune chip type.
 
 **Next step → T3:** in `js/scenes/s1-hero.js`, replace the midpoint `cut(...)` with motion: radial-mask reveal of `.hero__glow` over the D9 photo (grow from the forehead hotspot, ~frame px 894,386), chip stagger (`.chips .chip`), tags sliding to `data-state="up"` (animate `top` 421→407 on desktop, or `y: -14`), CTA fade-out. Then the 5 icon loops on `[data-id="body"]` inside each `.chip .icon` (time-based gsap tweens, toggled by a ScrollTrigger on the s1 window, off under reduced motion). Keep the layer's hold window (`sceneWindow`) as is.
+
+---
+
+## T3 S1 Hero glow and vital chips (done, 2026-10-06)
+
+**Built** (`js/scenes/s1-hero.js`; the midpoint `cut` is gone)
+- Glow reveal: `.hero__glow` (D10 photo) sits over the D9 photo with a feathered radial `mask-image` (scenes.css). Centre `--gx/--gy` = forehead hotspot (frame px 894,386, corrected for the glow image's placement); `--r` is scrubbed 0 → 1400px (feather `--f` 220px) over 5–60% of the segment, `sine.inOut`. Scrolling back shrinks it into the forehead.
+- Copy re-layout: CTA fades/drops out (10–22%), tags lift `y: -14` on desktop (14–30%; the old `.tags[data-state="up"]` CSS rules are removed), "A 30-second facial scan results in:" rises in (30–44%).
+- Chips: stagger from 38% (`y 48 → 0`, scale 0.94 → 1, 0.075 seg per chip, `power3.out`); each icon glyph pops in just after its chip (`back.out`). All in by ~84%, so the tail of S1 and the first half of t1-turn hold D10.
+- Icon loops (time-based, glyph `[data-id="body"]` only; shadow and glow rasters never move): heart beats at 72 bpm (double-thump), O₂ molecule spins (7 s), blood-pressure sphere squashes from its base, lungs breathe (2.3 s each way ≈ 13/min), glucose hexagon ticks +60° steps. `#sparkles` children twinkle (staggered opacity).
+- New `js/lib/ambient.js` + `ctx.onCleanup` in main.js (see ASSET_MAP "Ambient loops"). Loops run while the playhead is in [chips start, S1 window end] and pause outside it.
+- All timings are fractions of `ctx.duration`, so a `mobileUnits` change in config.js rescales them.
+
+**Verified** (Browser pane, `?still` + `tl.time()` sampling)
+- 10-point forward and reverse sweeps give identical glow radius, CTA, tags and chip states.
+- Loops: blood-oxygen body rotates at t = 1.7 / 2.3 / 1.8 (in the window), frozen at t = 0.3 (before chips) and t = 5 (S1 hidden); shadow `transform: none` throughout.
+- No console errors. Mobile 375×812: glow mask follows the focus crop, chips enter in the 2-column grid, CTA fade leaves only a small gap.
+- Screenshots: `docs/shots/t3-desktop-glow-mid.jpg` (mask mid-grow), `docs/shots/t3-desktop-d10.jpg` (chips landed), `docs/shots/t3-mobile-375.jpg`.
+
+**Known issues / notes**
+- `frameAt` (the `?ref=` overlay) still switches D9 → D10 at S1's midpoint; the animated end state matches D10 from ~85% of the segment. Compare D10 with `?at=s1-hero+0.95`.
+- Animating `--r` repaints the mask on a full-size image each frame; smooth here, but T15 should profile it (fallback: `clip-path: circle()` with a blurred edge layer).
+- Reduced motion: end state set statically (glow on, CTA hidden, tags up), no loops.
+- The preview launcher still can't read iCloud: start `python3 -m http.server 8080` from Bash in `site/`, then `preview_start site`.
+
+**Next step → T4:** generate the head-turn image-to-video clip (first frame `assets/img/hero-a-glow.webp` placed as D10, last frame `front.webp` as D11), export 60–90 WebP frames to `assets/seq/turn/`, or mark T4 `blocked` with the reason so T5 uses the crossfade fallback. Note for T5: the S1 icon loops currently run until S1's window end (mid t1-turn); T5 should fade the chips out there.

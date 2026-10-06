@@ -112,6 +112,7 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 - **Frame boxes** (`.fbox`, `js/lib/fit.js`): 1440×1024 boxes in frame px, scaled into their host. Desktop: photos `cover`, UI/diagram/panel/D19 cards `contain`, nav `contain-top`. At exactly 1440×1024 (or any 1.406 aspect) both fits coincide, so the stage matches the frames. Mobile: photos use `focus` (a frame-px rect fitted into a fraction of the stage, top edge faded), UI boxes switch to flow layout (`data-m-fit="none"`). The applied scale is `--fs` on the box.
 - **Placement**: `at([x,y,w,h])` → `--x/--y/--w/--h` + class `.at` (absolute on desktop; chips, pills and cards reflow on mobile).
 - **Static schedule** (`js/lib/static.js`): each scene is held for its segment plus half of each neighbouring transition; `shows` in config.js says which frame(s) it shows (two → hard switch at the midpoint). `frameAt(tl, t)` returns the frame on screen.
+- **Ambient loops** (`js/lib/ambient.js`, T3): `ambient(tl, ctx, from, to, loops)` plays paused, time-based tweens only while the master playhead is inside `[from, to]` (so they follow the scrubbed layer visibility, and work with `?still`). Skipped under reduced motion. It registers its ticker removal with `ctx.onCleanup(fn)` (main.js runs those when the matchMedia context reverts).
 
 ## Image sequences (`assets/seq/`)
 _T4: `assets/seq/turn/` head-turn frames._

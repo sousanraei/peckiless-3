@@ -8,7 +8,7 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T0 | Scaffold + handoff docs | done |
 | T1 | Asset extraction + optimisation | done |
 | T2 | Static layout of all scenes (no motion) | done |
-| T3 | S1 Hero glow + vital chips (D9→D10) | todo |
+| T3 | S1 Hero glow + vital chips (D9→D10) | done |
 | T4 | Head-turn footage (AI image-to-video) | todo |
 | T5 | T1 transition (D10→D11) | todo |
 | T6 | S2–S4 Science, scan, ROI (D11–D13) | todo |
