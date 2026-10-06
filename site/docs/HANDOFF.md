@@ -479,6 +479,31 @@ Built directly on `main`.
 
 Everything else (S1 chips, turn, scan, ROI, zoom, pixels, skin, beams, vitals morphs, finale) already read cleanly on mobile, because their camera targets are measured from the fitted boxes. I left them alone.
 
+**Findings by scene.** Seeked with `trigger.disable(false)` + `master.time()`. Phone = 375×812, tablet = 768×1024, landscape = 812×375. Landscape before the fix used the stacked composition and was broken in every scene; the landscape notes below are after the fix (desktop composition).
+
+| Scene | Phone | Tablet | Landscape (after fix) | Action |
+|---|---|---|---|---|
+| S1 hero (D9→D10) | Copy on top, face glow centred, 5 chips in a 2-col grid over her lower face ("Glucose level" alone on row 3). Clean. | Clean, chips across the bottom. | The D10 frame at ~0.37×. Chips readable. | none |
+| T1 turn | Footage fills, eyebrow stays, headline swaps. Clean. | — | — | none |
+| S2 science | Headline + pills scroller along the bottom. A big empty band in the middle is the D11 reading pause (photo B sits under it). | — | — | none |
+| S3 scan | Scan line spans the face width and maps 1:1 to scroll. Pill 1 lit. | — | — | none |
+| S4 ROI | 3 boxes on forehead/cheeks. | Boxes sit right on the face. | — | none |
+| T2 zoom | Push into the right-cheek box, no jump. Headline is gone mid-zoom, by design. | — | — | none |
+| S5 pixels | Swatch grid fills the box. The "Step 2: ROI detection" headline wraps to 3 lines. | Also wraps to 3 lines (66px clamp). | — | none (acceptable) |
+| T3 skin | At 0.5 the stage is white (the bloom cut, by design); the skin rises after. | — | — | none |
+| S6 vessels | Skin section on the bottom half, beams run past the right edge, "Vessels reflect light" label slightly clipped on the right. | Clean. | Clean. | none (minor) |
+| T4 beams | Two beams pan across an empty stage, then become the D17 arrows. | Clean. | — | none |
+| S7 clean | The panel (POS / band-pass stages) is readable through `--ts`. **The RGB curves exit at the right screen edge** instead of feeding the panel (which is below). | The panel was height-bound and small → target made taller. | Desktop frame, small but whole. | panel target `0.03 0.475 0.94 0.42` |
+| S8 calc | **Labels ~6px**. After the fix: ~8–10px, with the f₀/band labels and SpO₂/respiration collisions removed. SpO₂ formulas ~7px. | ~8.6px text, clean. | Desktop frame, small. | `--tc/--tb/--tf` text scale, notes hidden, `mobileUnits 2.4` |
+| T5 vitals | Lines fly from the panel down to the card grid over photo E. Clean. | Clean. | — | none |
+| S9 finale | Headline, CTA, 2-col card grid over the photo. Clean. | Cards zoom capped at 1 (they don't fill the columns). | The D19 frame, cards readable, CTA visible. | none |
+
+**Other findings**
+- Screenshots taken straight after a seek can show stale paint (a missing photo). Wait ~0.8 s before taking one. This is not a bug.
+- The pane serves ES modules from cache. Edits need `fetch(url, {cache:'reload'})` + reload (as noted in T12).
+- With the app pane hidden, `document.visibilityState` is `hidden`, so rAF stops and scrolling doesn't advance the timeline. Testing scroll needs `ScrollTrigger.update()` + a loop of `gsap.ticker.tick()`. With that, scrollY → master time is exact at every test point.
+- The first forward/reverse sweep that queried the DOM inside each snapshot showed false diffs (t5 builds its overlay lazily). Snapshot a fixed element list instead; the sweep is then identical at all 61 points.
+
 **Changed**
 - **Mobile = portrait.** `config.js` has a new `MOBILE_QUERY = (max-width: 899px) and (max-aspect-ratio: 1/1)`. `main.js` matchMedia uses it (`isDesktop` = `not all and …`), and so does `fit.js` (`mobileMq.matches` instead of `innerWidth < BREAKPOINT`). All six `@media (max-width: 899px)` blocks in `css/` are now `… and (max-aspect-ratio: 1/1)`.
   - Landscape phones (e.g. 812×375, and anything under 900px wide that is wider than tall) now get the desktop composition, contain-fitted like the frames. gsap.matchMedia rebuilds the film when the device rotates.
