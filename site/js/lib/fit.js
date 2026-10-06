@@ -2,7 +2,7 @@
 // placed at frame coordinates. fit() scales/positions each box into its host
 // (its parent element, or the viewport with data-host="viewport").
 //
-// Attributes (data-m-* override on mobile, < BREAKPOINT):
+// Attributes (data-m-* override on mobile, MOBILE_QUERY in config.js):
 //   data-fit     cover | contain | contain-top | focus | none
 //   data-focus   "x y w h"  frame-px rect to keep in view (focus mode)
 //   data-target  "x y w h"  fractions of the host the focus rect fits into
@@ -10,7 +10,9 @@
 //   data-fill    present → the frame must cover the host width and bottom
 //                (photos). The top may stay open; mobile fades it out.
 // The applied scale is exposed as --fs on the box for counter-scaling.
-import { BREAKPOINT } from '../config.js';
+import { MOBILE_QUERY } from '../config.js';
+
+const mobileMq = window.matchMedia(MOBILE_QUERY);
 
 const FW = 1440;
 const FH = 1024;
@@ -28,7 +30,7 @@ function apply(el) {
     boxes.delete(el);
     return;
   }
-  const mobile = window.innerWidth < BREAKPOINT;
+  const mobile = mobileMq.matches;
   const mode = attr(el, 'fit', mobile) || 'cover';
   if (mode === 'none') {
     el.style.transform = '';

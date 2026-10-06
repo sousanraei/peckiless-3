@@ -209,7 +209,7 @@ function markup() {
     }).join('');
     out.push(`
       <g class="calc__block" data-block="resp">
-        <text class="calc__title" x="${box[0]}" y="${box[1] - 16}">Respiration · pulse-amplitude envelope</text>
+        <text class="calc__title" x="${box[0]}" y="${box[1] - 16}">Respiration<tspan class="calc__long"> · pulse-amplitude envelope</tspan></text>
         <path class="calc__bvp-faint" d="${line(D.t.slice(i0, i1), yy, X, Y)}"/>
         <path class="calc__env" d="${env}"/>
         <text class="calc__note" x="${R}" y="${box[1] + box[3] + 20}" text-anchor="end">f = ${f(A.fResp, 3)} Hz → RR = <tspan class="calc__val calc__val--lg" data-count="rr">${f(A.rr)}</tspan> <tspan class="calc__val">/min</tspan></text>

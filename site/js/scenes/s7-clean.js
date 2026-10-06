@@ -269,7 +269,7 @@ export function build(tl, ctx) {
       <p class="rgb-label">RGB channels<br>Derived from facial scan</p>
     </div>`);
   const panel = h(`
-    <div class="fbox panel-box" data-fit="contain" data-m-fit="focus" data-m-focus="689 178 686 583" data-m-target="0.03 0.48 0.94 0.38">
+    <div class="fbox panel-box" data-fit="contain" data-m-fit="focus" data-m-focus="689 178 686 583" data-m-target="0.03 0.475 0.94 0.42">
       <div class="panel" id="calc-panel"><div class="panel__body"></div></div>
     </div>`);
   // The arrows enter from off-canvas: extend their shafts far to the left so

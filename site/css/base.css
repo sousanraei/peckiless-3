@@ -98,7 +98,7 @@ a { color: inherit; }
   color: var(--c-contact-ink);
   text-decoration: none;
 }
-@media (max-width: 899px) {
+@media (max-width: 899px) and (max-aspect-ratio: 1/1) {
   .chrome { left: 0; top: 0; right: 0; width: auto; height: 0; transform: none; }
   .nav {
     left: 12px;
@@ -150,7 +150,7 @@ a { color: inherit; }
 }
 .debug li button:hover { background: rgba(255,255,255,.08); }
 .debug li.is-active button { background: rgba(61,220,151,.22); color: #fff; }
-@media (max-width: 899px) {
+@media (max-width: 899px) and (max-aspect-ratio: 1/1) {
   .debug { width: 180px; padding: 8px 10px; font-size: 11px; }
   .debug ol { display: none; }
 }

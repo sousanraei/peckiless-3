@@ -1,6 +1,6 @@
 // Boots the film: builds one layer per scene, one master timeline with a
 // label per scene, and binds it to native scroll via ScrollTrigger (scrub).
-import { SCENES, BREAKPOINT, SCRUB } from './config.js';
+import { SCENES, MOBILE_QUERY, SCRUB } from './config.js';
 import { buildShared } from './shared.js';
 import { fitAll } from './lib/fit.js';
 import { initDebug } from './debug.js';
@@ -23,8 +23,8 @@ window.__film = app; // handy for console debugging
 const mm = gsap.matchMedia();
 mm.add(
   {
-    isDesktop: `(min-width: ${BREAKPOINT}px)`,
-    isMobile: `(max-width: ${BREAKPOINT - 1}px)`,
+    isDesktop: `not all and ${MOBILE_QUERY}`,
+    isMobile: MOBILE_QUERY,
     reduced: '(prefers-reduced-motion: reduce)',
   },
   (mmCtx) => {

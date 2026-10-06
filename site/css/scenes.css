@@ -233,19 +233,19 @@
 /* S8 analysis drawing (s8-calc.js), panel-local px. Use fill-/stroke-opacity
    here, not opacity: GSAP's autoAlpha owns opacity on the animated parts. */
 .calc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; font-family: var(--f-body); }
-.calc text { fill: var(--c-navy); font-size: 11px; font-variant-numeric: tabular-nums; }
-.calc .calc__title { font-size: 13px; font-weight: 650; letter-spacing: -0.1px; }
-.calc .calc__note, .calc .calc__tick { fill: #5d6f7a; font-size: 11px; }
-.calc .calc__ibi { fill: var(--c-magenta); fill-opacity: .8; font-size: 9.5px; }
+.calc text { fill: var(--c-navy); font-size: calc(11px * var(--tc, 1)); font-variant-numeric: tabular-nums; }
+.calc .calc__title { font-size: calc(13px * var(--tc, 1)); font-weight: 650; letter-spacing: -0.1px; }
+.calc .calc__note, .calc .calc__tick { fill: #5d6f7a; font-size: calc(11px * var(--tc, 1)); }
+.calc .calc__ibi { fill: var(--c-magenta); fill-opacity: .8; font-size: calc(9.5px * var(--tc, 1)); }
 .calc .calc__val { fill: var(--c-navy); font-weight: 700; }
-.calc .calc__val--lg { font-size: 15px; fill: var(--c-magenta); }
-.calc .calc__formula { font-size: 12px; font-style: italic; fill: var(--c-ink-2); white-space: pre; }
-.calc .calc__big { font: 760 64px/1 var(--f-display); letter-spacing: -2px; fill: var(--c-navy); }
-.calc .calc__unit { font-size: 20px; font-weight: 650; letter-spacing: 0; fill: var(--c-magenta); }
-.calc .calc__f0-label { font-size: 12px; font-weight: 700; fill: var(--c-magenta); }
-.calc .calc__bandlabel { fill: var(--c-g); font-size: 10px; font-weight: 600; }
-.calc .calc__r { fill: var(--c-r); font-style: normal; font-weight: 700; font-size: 9px; baseline-shift: sub; }
-.calc .calc__b { fill: var(--c-b); font-style: normal; font-weight: 700; font-size: 9px; baseline-shift: sub; }
+.calc .calc__val--lg { font-size: calc(15px * var(--tc, 1)); fill: var(--c-magenta); }
+.calc .calc__formula { font-size: calc(12px * var(--tf, var(--tc, 1))); font-style: italic; fill: var(--c-ink-2); white-space: pre; }
+.calc .calc__big { font: 760 calc(64px * var(--tb, 1))/1 var(--f-display); letter-spacing: -2px; fill: var(--c-navy); }
+.calc .calc__unit { font-size: calc(20px * var(--tb, 1)); font-weight: 650; letter-spacing: 0; fill: var(--c-magenta); }
+.calc .calc__f0-label { font-size: calc(12px * var(--tc, 1)); font-weight: 700; fill: var(--c-magenta); }
+.calc .calc__bandlabel { fill: var(--c-g); font-size: calc(10px * var(--tc, 1)); font-weight: 600; }
+.calc .calc__r { fill: var(--c-r); font-style: normal; font-weight: 700; font-size: calc(9px * var(--tc, 1)); baseline-shift: sub; }
+.calc .calc__b { fill: var(--c-b); font-style: normal; font-weight: 700; font-size: calc(9px * var(--tc, 1)); baseline-shift: sub; }
 .calc__axis line, .calc__mid { stroke: var(--c-line); stroke-width: 1; }
 .calc__bvp { fill: none; stroke: var(--c-g); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .calc__bvp-faint { fill: none; stroke: var(--c-g); stroke-width: 1; stroke-opacity: .3; }
@@ -307,8 +307,8 @@
 .card__unit { margin-left: 6px; font: 500 10px/1 var(--f-body); translate: 0 -1.5px; }
 .card__delta { margin-left: auto; font: 400 9.5px/1 var(--f-body); translate: 0 -1.5px; }
 
-/* ======================= Mobile (< 900px) ======================= */
-@media (max-width: 899px) {
+/* ============ Mobile (< 900px, portrait; MOBILE_QUERY in config.js) ============ */
+@media (max-width: 899px) and (max-aspect-ratio: 1/1) {
   /* Photos fade out at the frame's top edge into the layer colour. */
   .photo__img {
     -webkit-mask-image: linear-gradient(transparent, #000 16%);
@@ -473,7 +473,7 @@
   mask-composite: intersect;
 }
 .zoom__fade { display: none; }
-@media (max-width: 899px) {
+@media (max-width: 899px) and (max-aspect-ratio: 1/1) {
   .zoom__fade {
     display: block;
     position: absolute;
@@ -583,11 +583,22 @@
 .rgb-pulse--r { fill: var(--c-r); }
 .rgb-pulse--g { fill: var(--c-g); }
 .rgb-pulse--b { fill: var(--c-b); }
-@media (max-width: 899px) {
+@media (max-width: 899px) and (max-aspect-ratio: 1/1) {
   /* The panel is fitted at ~0.5×: bigger text, drop the eyebrow and notes. */
   .sp { --ts: max(1, calc(0.75 / var(--fs, 1))); }
   .sp__eyebrow, .sp__note { display: none; }
   .sp__f { padding-top: 18px; }
+  /* S8: same ~0.5× fit. Text scales up ≈1.5× (≥ 8px on a 375px phone);
+     the secondary method notes that would then collide are dropped. */
+  .calc {
+    --tc: clamp(1, calc(0.78 / var(--fs, 1)), 1.6);
+    --tb: clamp(1, calc(0.6 / var(--fs, 1)), 1.25);
+    --tf: clamp(1, calc(0.6 / var(--fs, 1)), 1.15); /* formulas: E's must end before F at x 356 */
+  }
+  .calc .calc__bandlabel, .calc .calc__long,
+  .calc [data-block="bvp"] > .calc__note,
+  .calc [data-block="psd"] .calc__frame > .calc__note,
+  .calc [data-block="spo2"] > .calc__note { display: none; }
 }
 
 /* ---------- T5 wave → vitals (D18 → D19) ----------

@@ -67,6 +67,6 @@
   --debug-bg: rgba(10, 20, 30, .82);
 }
 
-@media (max-width: 899px) {
+@media (max-width: 899px) and (max-aspect-ratio: 1/1) {
   :root { --nav-h: 56px; --nav-top: 10px; }
 }

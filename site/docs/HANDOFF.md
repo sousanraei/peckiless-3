@@ -465,3 +465,52 @@ Built directly on `main` (T8–T11 are merged there now).
 - The 7 HRV bars that aren't picked, and the lollipop dots, fade out with the panel.
 
 **Next step → T13:** mobile choreography pass (`mobileUnits` in config.js, camera targets, 375×812 and 768×1024 portrait and landscape).
+
+---
+
+## T13 Mobile choreography pass (done, 2026-10-06)
+
+Built directly on `main`.
+
+**Audit** (Browser pane, real Chrome; each scene seeked at 2–3 fractions at 375×812, 768×1024 and 812×375). What I found:
+- S8 analysis labels were about 6px on a phone.
+- Phone landscape was broken: the stacked mobile composition was squeezed into 375px of height, with the headline under the chips and the cards over the copy.
+- On tablet the S7/S8 panel was fitted by height and sat small above empty space.
+
+Everything else (S1 chips, turn, scan, ROI, zoom, pixels, skin, beams, vitals morphs, finale) already read cleanly on mobile, because their camera targets are measured from the fitted boxes. I left them alone.
+
+**Changed**
+- **Mobile = portrait.** `config.js` has a new `MOBILE_QUERY = (max-width: 899px) and (max-aspect-ratio: 1/1)`. `main.js` matchMedia uses it (`isDesktop` = `not all and …`), and so does `fit.js` (`mobileMq.matches` instead of `innerWidth < BREAKPOINT`). All six `@media (max-width: 899px)` blocks in `css/` are now `… and (max-aspect-ratio: 1/1)`.
+  - Landscape phones (e.g. 812×375, and anything under 900px wide that is wider than tall) now get the desktop composition, contain-fitted like the frames. gsap.matchMedia rebuilds the film when the device rotates.
+  - **Keep the CSS and JS queries in sync** if either changes.
+- **S8 mobile text** (`css/scenes.css`): `.calc` font sizes are now `calc(Npx * var(--tc, 1))`. The big HR number and its unit use `--tb`, and formulas use `--tf`. On mobile:
+  - `--tc = clamp(1, 0.78/--fs, 1.6)`, which is ≈1.5 at 375px, so labels are about 8–10px on screen
+  - `--tb ≤ 1.25` and `--tf ≤ 1.15` (SpO₂'s formula column has to end before block F at x 356)
+  - Hidden on mobile because they would collide: the BVP / PSD / SpO₂ method notes, the "pulse band" label (the band stays shaded) and the " · pulse-amplitude envelope" tail of F's title (`.calc__long` tspan in `s8-calc.js`)
+  - Desktop sizes are unchanged (the vars default to 1)
+- **S7/S8 panel target** on mobile goes from `0.03 0.48 0.94 0.38` to `0.03 0.475 0.94 0.42`. Phones are width-bound, so nothing changes there; on tablet the panel grows about 10% into the empty band above the pills.
+- **Pacing**: S8 gets `mobileUnits: 2.4` (vs 2.0) because the analysis is denser to read on a phone. Mobile film length is 21.4 viewports (desktop 21).
+
+**Touch-scroll feel**
+- Native scroll and `scrub: 0.5` are unchanged; there's no scroll normalisation (PLAN: no scroll-jacking).
+- The track and stage use `svh`, so the iOS URL bar collapsing doesn't change the scroll length. Frame boxes are fitted to the stage (100svh), not `innerHeight`.
+
+**Verified**
+- 375×812:
+  - forward vs reverse seek sweep, 61 points over the whole film, every stage element's style / `d` / `transform`: identical
+  - native scroll (ticker pumped by hand, since the pane was hidden so rAF was paused) at 0.2 / 0.5 / 0.85 / 0.4 / 0.05 / 1 of the track lands exactly on master time = fraction × 21.4
+  - no console errors
+- 768×1024 and 812×375: each scene seeked, layouts clean.
+- 1440×1024: duration 21, `.calc` text at its original sizes, S8 looks as before.
+- Screenshots:
+  - `docs/shots/t13-mobile-375.jpg`: S8, before and after
+  - `docs/shots/t13-tablet-768.jpg`: S7 POS stage, S8, t5 mid-morph
+  - `docs/shots/t13-landscape-812.jpg`: S1, S6, S8, S9 in the desktop composition
+
+**Known issues / notes**
+- Mobile S7/S8: the three RGB curves still leave the diagram at the right screen edge (the panel sits below rather than to the right). It reads as "off to the panel" but isn't a literal connection. Bending them down into the panel would need a mobile-only curve geometry in s7-clean.js.
+- Landscape phones show the whole 1440×1024 frame at about 0.37×, so the nav links and pill text are small (about 8px). That's acceptable for a presentation prototype; a dedicated landscape composition would be a new layout.
+- The SpO₂ formula lines on a phone are about 7px (capped by block F's position).
+- The Browser pane hides its tab when the app pane isn't shown. rAF then stops, so scroll tests need `gsap.ticker.tick()` pumping (see Verified).
+
+**Next step → T14:** reduced motion and accessibility (stacked static end states, fade-only reveals, heading order, alt text, focus states, contrast).
