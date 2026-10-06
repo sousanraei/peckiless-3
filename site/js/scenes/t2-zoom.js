@@ -117,6 +117,7 @@ export function link(tl, ctx) {
     // perceived speed) about the transform's fixed point.
     const A = fitOf(photo4);
     const B = fitOf(photo5);
+    if (!(A.s > 0 && B.s > 0)) return; // not laid out yet (zero-size stage)
     const a0 = A.s;
     const a1 = B.s * Z;
     const b0 = [A.x, A.y];

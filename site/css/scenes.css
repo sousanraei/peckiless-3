@@ -196,6 +196,14 @@
   color: var(--c-cta-ink);
 }
 
+/* T3 into the skin (t3-skin.js): the skin image and the vessel overlay rise
+   by (1 - --rise) × --drop; --rise is scrubbed, --drop measured per fit.
+   Labels pop via --pop (a transform, so the mobile `scale` rule still holds). */
+.photo__img--skin, .vessels { translate: 0 calc((1 - var(--rise, 1)) * var(--drop, 0px)); }
+.beam-label { transform: scale(var(--pop, 1)); }
+.vessel-path { fill: none; stroke: none; }
+.pulse { will-change: transform, opacity; }
+
 /* ---------- S7/S8 RGB diagram + calculation panel ---------- */
 .rgb [data-id="calc-panel"] { display: none; }
 .rgb-label {
@@ -453,3 +461,23 @@
   }
 }
 .is-reduced .layer--t2-zoom { display: none; }
+
+/* ---------- T4 follow the beams (D16 → D17) ---------- */
+/* The beam layer sits between S6 and S7. While it runs, S6 hides its own two
+   outgoing beams (this layer redraws them in screen px) and S7 drops its
+   background so the beams stay visible under the diagram (data-beams="on").
+   S6's photo content rides the camera inside .beams-cam (t4-beams.js). */
+.layer[data-beams="on"].layer--s7-clean { background: none; }
+.layer--s6-vessels[data-beams="on"] :is([data-id^="beam-specular"], [data-id^="beam-out"]) { visibility: hidden; }
+.beams-cam { position: absolute; inset: 0; transform-origin: 0 0; }
+.fly__bg { position: absolute; inset: 0; background: var(--c-white); }
+.fly__svg { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; overflow: visible; }
+.fly__shaft { stroke-linecap: round; }
+.fly__head { stroke-linecap: round; stroke-linejoin: miter; }
+.is-reduced .layer--t4-beams { display: none; }
+.beams-cam.is-feathered {
+  -webkit-mask-image: linear-gradient(to left, transparent, #000 var(--fe)), linear-gradient(to top, transparent, #000 var(--fe));
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to left, transparent, #000 var(--fe)), linear-gradient(to top, transparent, #000 var(--fe));
+  mask-composite: intersect;
+}
