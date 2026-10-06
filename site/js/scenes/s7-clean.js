@@ -67,6 +67,8 @@ const sv = V(D.pos.s);
 const POS_K = (0.42 * P.h) / Math.max(...pct(0.005, 0.995, sv).map(Math.abs));
 const XY_K = (0.42 * P.h) / 0.016; // X, Y in their own units (±1.6 %)
 const Z_K = (0.42 * P.h) / 3; // z-score ±3
+// S8 (T11) picks the BVP line up from here: plot box + z-score scale.
+export const BVP_PLOT = { ...P, k: Z_K, secs: SECS };
 
 const Y = {
   rLane: laneY('r'), gLane: laneY('g'), bLane: laneY('b'),

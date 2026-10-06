@@ -211,3 +211,129 @@ export function generate(seed = 0x5ec4) {
 }
 
 export const view = (arr, d) => arr.slice(d.i0, d.i1 + 1);
+
+// ---------- Step 5 analysis (T11) ----------
+// Everything S8 shows is measured here from generate()'s output:
+//   HR    Welch PSD of the BVP (8 s Hann, 50 % overlap), peak in BAND,
+//         parabolic refinement → HR = 60·f₀; cross-checked by peak detection
+//   HRV   inter-beat intervals from sub-sample systolic peaks → RMSSD, SDNN
+//   RR    pulse-amplitude envelope (peak heights, resampled at 4 Hz) → its
+//         spectral peak in 0.1–0.5 Hz
+//   SpO₂  ratio of ratios: each normalised channel band-passed and regressed
+//         onto the BVP per 2.5 s window, median window (motion-robust),
+//         R = (AC/DC)_R / (AC/DC)_B → SpO₂ = a − b·R (SPO2_CAL)
+const hann = (n) => Array.from({ length: n }, (_, i) => 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (n - 1)));
+
+// Power spectrum of a real signal at nfft points (direct DFT, half-spectrum).
+function power(x, nfft) {
+  const out = new Array(nfft / 2 + 1);
+  for (let k = 0; k <= nfft / 2; k++) {
+    const w = (2 * Math.PI * k) / nfft;
+    let re = 0, im = 0;
+    for (let n = 0; n < x.length; n++) {
+      re += x[n] * Math.cos(w * n);
+      im -= x[n] * Math.sin(w * n);
+    }
+    out[k] = re * re + im * im;
+  }
+  return out;
+}
+
+export function welch(x, { fs = FS, seg = 8 * FS, nfft = 1024 } = {}) {
+  const w = hann(seg);
+  const u = w.reduce((s, v) => s + v * v, 0);
+  const psd = new Array(nfft / 2 + 1).fill(0);
+  let count = 0;
+  for (let s = 0; s + seg <= x.length; s += seg / 2) {
+    const part = x.slice(s, s + seg);
+    const m = mean(part);
+    power(part.map((v, i) => (v - m) * w[i]), nfft).forEach((v, k) => (psd[k] += v / (fs * u)));
+    count++;
+  }
+  return { freqs: psd.map((_, k) => (k * fs) / nfft), psd: psd.map((v) => v / count) };
+}
+
+// Highest bin in [lo, hi] Hz, refined by a parabola through its neighbours.
+function spectralPeak(freqs, p, lo, hi) {
+  let k = -1;
+  for (let i = 1; i < p.length - 1; i++) {
+    if (freqs[i] >= lo && freqs[i] <= hi && (k < 0 || p[i] > p[k])) k = i;
+  }
+  const [a, b, c] = [p[k - 1], p[k], p[k + 1]];
+  const d = (0.5 * (a - c)) / (a - 2 * b + c || 1);
+  return freqs[k] + d * (freqs[1] - freqs[0]);
+}
+
+// Systolic peaks with sub-sample time and height (parabolic interpolation).
+export function systolicPeaks(y, fs = FS) {
+  return findPeaks(y, { minDist: Math.round(0.33 * fs), thr: 0.3 * std(y) }).map((i) => {
+    const [a, b, c] = [y[i - 1], y[i], y[i + 1]];
+    const d = (0.5 * (a - c)) / (a - 2 * b + c || 1);
+    return { i, t: (i + d) / fs, y: b - 0.25 * (a - c) * d };
+  });
+}
+
+export function analyse(d) {
+  // Skip 1 s at each end (filter edges).
+  const e0 = FS;
+  const e1 = d.bvp.length - FS;
+  const bvp = d.bvp.slice(e0, e1);
+  const { freqs, psd } = welch(bvp);
+  const f0 = spectralPeak(freqs, psd, ...BAND);
+
+  const peaks = systolicPeaks(bvp).map((p) => ({ ...p, i: p.i + e0, t: p.t + e0 / FS }));
+  const ibi = peaks.slice(1).map((p, i) => (p.t - peaks[i].t) * 1000);
+  const meanIbi = mean(ibi);
+  const rmssd = Math.sqrt(mean(ibi.slice(1).map((v, i) => (v - ibi[i]) ** 2)));
+
+  // Respiration: envelope through the peak heights at 4 Hz.
+  const efs = 4;
+  const env = [];
+  for (let s = peaks[0].t, j = 0; s <= peaks.at(-1).t; s += 1 / efs) {
+    while (peaks[j + 1] && peaks[j + 1].t < s) j++;
+    const a = peaks[j];
+    const b = peaks[j + 1] ?? a;
+    env.push(b.t > a.t ? a.y + ((s - a.t) / (b.t - a.t)) * (b.y - a.y) : a.y);
+  }
+  const em = mean(env);
+  const ew = hann(env.length);
+  const ep = power(env.map((v, i) => (v - em) * ew[i]), 1024);
+  const fResp = spectralPeak(ep.map((_, k) => (k * efs) / 1024), ep, 0.1, 0.5);
+
+  // SpO₂: pulsatile part of each DC-normalised channel, measured along the
+  // BVP in 2.5 s windows (~3 beats, 50 % overlap); the median window wins, so
+  // the two motion windows (ratio → 1, motion is colour-neutral) drop out.
+  const ac = { r: bandpass(d.norm.r).slice(e0, e1), b: bandpass(d.norm.b).slice(e0, e1) };
+  const n = Math.round(2.5 * FS);
+  const wins = [];
+  for (let s = 0; s + n <= bvp.length; s += Math.round(n / 2)) {
+    const along = (x) => {
+      let xy = 0, yy = 0;
+      for (let i = s; i < s + n; i++) { xy += x[i] * bvp[i]; yy += bvp[i] * bvp[i]; }
+      return xy / yy;
+    };
+    wins.push({ t: (s + e0 + n / 2) / FS, r: along(ac.r), b: along(ac.b) });
+  }
+  wins.forEach((w) => (w.ratio = w.r / w.b));
+  const med = [...wins].sort((p, q) => p.ratio - q.ratio)[wins.length >> 1];
+  const acdc = { r: med.r, b: med.b };
+  const ratio = med.ratio;
+
+  return {
+    psd: { freqs, psd, f0 },
+    peaks,
+    ibi,
+    hr: 60 * f0,
+    hrPeaks: 60000 / meanIbi,
+    meanIbi,
+    rmssd,
+    sdnn: std(ibi),
+    fResp,
+    rr: 60 * fResp,
+    acdc,
+    ratio,
+    spo2Windows: wins,
+    ac, // band-passed R / B over DC (from 1 s), for the SpO₂ plot
+    spo2: SPO2_CAL[0] - SPO2_CAL[1] * ratio,
+  };
+}

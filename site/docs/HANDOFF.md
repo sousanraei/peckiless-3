@@ -351,3 +351,57 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - Matching frame: D17 is the panel before stage 1 (`t4-beams+0.95`); the panel content is new (D17's rectangle is empty).
 
 **Next step → T11:** S8 Step 5 (D18) in `s8-calc.js`. Import `generate()` from `js/lib/rppg.js` (same seed → same data) and take over `#calc-panel .sp`: the BVP stage is on screen from s7 0.87 through S8. Morph line 1 (BVP) or fade the stage-5 chrome (`.sp__stage[data-i="4"]`, `.sp__title[data-i="4"]`, `.sp__f[data-i="4"]`) into the analysis views: Welch PSD peak 1.2 Hz = 72 BPM, peaks, HRV strip, SpO₂ ratio of ratios (`AC`, `SPO2_CAL` → 96 %), respiration envelope (13/min).
+
+---
+
+## T11 S8 Step 5: Calculate (done, 2026-10-06)
+
+Built on `claude/lucid-fermat-s5pcrr` (T8 + T9 + T10). That chain is still not merged to `main`.
+
+**Built**
+- `js/lib/rppg.js`, `analyse(d)` (pure, ~15 ms): measures Step 5 from `generate()`'s output and skips 1 s at each end for filter edges. Nothing is copied from the constants.
+  - **HR**: Welch PSD of the BVP (8 s Hann, 50 % overlap, nfft 1024), highest bin in 0.7–4 Hz with parabolic refinement: f₀ = 1.2027 Hz → **72.16 → 72 BPM**. Cross-check from systolic peaks (`systolicPeaks()`, sub-sample): 71.99 BPM, mean IBI 833 ms.
+  - **HRV**: from the 16 IBIs, RMSSD 35 ms and SDNN 26 ms. The RSA is the only variability in T10's model.
+  - **RR**: peak heights resampled at 4 Hz, Hann, FFT peak in 0.1–0.5 Hz: 0.2187 Hz → **13.12 → 13 /min**.
+  - **SpO₂**: band-passed R and B (normalised by DC), regressed onto the BVP in 2.5 s windows (~3 beats, 50 % overlap), median window: R = 0.555 → 110 − 25·R = **96.13 → 96 %**.
+  - Why windowed: a whole-signal regression gave 0.63 (94 %), because T10's motion is colour-neutral and pulls the ratio toward 1; the two motion windows read 0.79 and 0.83. Masking motion, or regressing on G, gave 0.51–0.71. The median over windows is the motion-robust estimate and lands on T10's design value of 0.556.
+- `js/scenes/s7-clean.js`: one added export, `BVP_PLOT` (plot box + z-score scale), so S8 can map onto S7's line.
+- `js/scenes/s8-calc.js` draws `svg.calc` into `.panel__body`:
+  - A: BVP over S7's 10 s window with systolic peaks and IBIs in ms.
+  - B: Welch PSD 0–4.5 Hz with the band shaded, f₀ = 1.20 Hz marked and 2f₀ labelled.
+  - C: HR card, "72 BPM", HR = 60·f₀, plus the peak-to-peak cross-check.
+  - D: HRV lollipop strip with RMSSD and SDNN.
+  - E: band-passed R/B traces, the ratio-of-ratios formula and "96 %" (median of 10 windows).
+  - F: faint BVP over 14 s with the Catmull-Rom peak envelope: f = 0.219 Hz → RR = 13 /min.
+- **Hand-off from S7, no swap**:
+  - At the s8-calc label, our BVP path sits exactly on S7's line: same samples, and a matrix maps block A onto S7's plot (`vector-effect: non-scaling-stroke`, stroke 2.8 to match).
+  - S7's `.sp` fades out over 0–0.07 (we only touch the `.sp` wrapper; T10's render keeps every child).
+  - The line eases into block A over 0.02–0.14 as one scrubbed progress value, so both scroll directions give identical matrices.
+- Choreography, in segment fractions (S8 = 2 units):
+  - A frame 0.08, peaks pop 0.12–0.29, IBIs 0.14–0.3
+  - B 0.22–0.4
+  - C 0.34–0.48 (HR counts up)
+  - D 0.46–0.62
+  - E 0.6–0.78
+  - F 0.74–0.9
+  - then the panel holds into t5-vitals
+  - Counters are scrubbed tweens. Every block gets at least 0.28 viewport.
+- CSS (`.calc*` in scenes.css) uses `fill-opacity` / `stroke-opacity` only, because GSAP's `autoAlpha` owns `opacity`.
+- Reduced motion: S7's `.sp` is hidden and the analysis is shown complete.
+
+**Verified** (headless Chromium via Playwright; GSAP from the npm package because cdnjs is blocked here)
+- DOM counters at s8+0.95: `hr=72 rmssd=35 sdnn=26 spo2=96 rr=13`. Under reduced motion they are the same.
+- Forward vs reverse sweep, 41 points from s8 − 0.2 to t5 + 0.2, covering every `.calc` node's opacity, transform, DrawSVG, y2 and text: identical.
+- The s7+0.99 → s8+0.001 seam only differs where two identical lines overlap.
+- No console or page errors at 1440×1024 or 375×812.
+- Screenshots:
+  - `docs/shots/t11-desktop.jpg`: panel at s7 0.99 / s8 0.001 / 0.07 / 0.3 / 0.56 / 0.95
+  - `docs/shots/t11-desktop-full.jpg`: s8 0.95
+  - `docs/shots/t11-mobile-375.jpg`: s8 0.04 (mid hand-off) / 0.95
+
+**Known issues / notes**
+- Mobile: labels are 11px in panel px, about 6px on screen at 375. T13 should give `.calc` T10's `--ts` text scaling, or a stacked mobile layout (the `BOX` table at the top of s8-calc.js).
+- `generate()` runs twice, once in S7 and once in S8 (~20 ms each, identical output). It could be memoised.
+- If T10's noise, motion or seed changes, re-check `analyse(generate())` in node: hr/rr/spo2 must round to 72/13/96.
+
+**Next step → T12:** t5-vitals (D18 → D19). Continue `.calc__bvp` (block A) out of the panel into the heart-rate card trace. Morph the PSD, HRV, SpO₂ and envelope paths into the four card charts (same-structure polylines), fade in photo E, and bring back the icon loops and the CTA.

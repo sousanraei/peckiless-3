@@ -230,6 +230,38 @@
 }
 .panel__body { position: absolute; inset: 0; }
 
+/* S8 analysis drawing (s8-calc.js), panel-local px. Use fill-/stroke-opacity
+   here, not opacity: GSAP's autoAlpha owns opacity on the animated parts. */
+.calc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; font-family: var(--f-body); }
+.calc text { fill: var(--c-navy); font-size: 11px; font-variant-numeric: tabular-nums; }
+.calc .calc__title { font-size: 13px; font-weight: 650; letter-spacing: -0.1px; }
+.calc .calc__note, .calc .calc__tick { fill: #5d6f7a; font-size: 11px; }
+.calc .calc__ibi { fill: var(--c-magenta); fill-opacity: .8; font-size: 9.5px; }
+.calc .calc__val { fill: var(--c-navy); font-weight: 700; }
+.calc .calc__val--lg { font-size: 15px; fill: var(--c-magenta); }
+.calc .calc__formula { font-size: 12px; font-style: italic; fill: var(--c-ink-2); white-space: pre; }
+.calc .calc__big { font: 760 64px/1 var(--f-display); letter-spacing: -2px; fill: var(--c-navy); }
+.calc .calc__unit { font-size: 20px; font-weight: 650; letter-spacing: 0; fill: var(--c-magenta); }
+.calc .calc__f0-label { font-size: 12px; font-weight: 700; fill: var(--c-magenta); }
+.calc .calc__bandlabel { fill: var(--c-g); font-size: 10px; font-weight: 600; }
+.calc .calc__r { fill: var(--c-r); font-style: normal; font-weight: 700; font-size: 9px; baseline-shift: sub; }
+.calc .calc__b { fill: var(--c-b); font-style: normal; font-weight: 700; font-size: 9px; baseline-shift: sub; }
+.calc__axis line, .calc__mid { stroke: var(--c-line); stroke-width: 1; }
+.calc__bvp { fill: none; stroke: var(--c-g); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.calc__bvp-faint { fill: none; stroke: var(--c-g); stroke-width: 1; stroke-opacity: .3; }
+.calc__peaks circle, .calc__f0 circle, .calc__bars circle { fill: var(--c-magenta); stroke: #fff; stroke-width: 1.5; }
+.calc__band { fill: var(--c-teal); fill-opacity: .1; }
+.calc__psd { fill: none; stroke: var(--c-teal); stroke-width: 2; stroke-linejoin: round; }
+.calc__psd-area { fill: var(--c-teal); fill-opacity: .22; }
+.calc__f0-line { stroke: var(--c-magenta); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.calc__card { fill: #fff; stroke: var(--c-line); }
+.calc__bars line { stroke: var(--c-magenta); stroke-width: 2; stroke-linecap: round; stroke-opacity: .5; }
+.calc__bars circle { stroke-width: 0; }
+.calc__ch { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+.calc__ch--r { stroke: var(--c-r); }
+.calc__ch--b { stroke: var(--c-b); }
+.calc__env { fill: none; stroke: var(--c-magenta); stroke-width: 2.2; stroke-linecap: round; }
+
 /* ---------- S9 / D19 vital cards (card-local px) ---------- */
 .card {
   box-sizing: border-box;
