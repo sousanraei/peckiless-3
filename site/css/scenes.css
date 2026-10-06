@@ -60,8 +60,11 @@
 }
 .copy__h + .copy__sub, .copy__sub + .copy__h { margin-top: 7px !important; }
 /* Reflow glides (S2 → S3, D14 → D15): --shift is measured, --k is scrubbed
-   0 → 1. A relative offset, since GSAP writes `translate: none` inline on the lines. */
-.copy__sub, .copy__h { position: relative; top: calc(var(--k, 0) * var(--shift, 0px)); }
+   0 → 1. A `translate` (compositor-only, T15; `top` relaid out every frame).
+   !important because GSAP writes `translate: none` inline on elements it
+   transforms (the wipes tween `y` on .copy__sub); `translate` composes with
+   GSAP's `transform`, so the glide and the wipe offsets add up. */
+.copy__sub, .copy__h { position: relative; translate: 0 calc(var(--k, 0) * var(--shift, 0px)) !important; }
 
 /* ---------- S1 hero: tags, CTA, results + chips ---------- */
 .tags {
@@ -202,7 +205,12 @@
 .photo__img--skin, .vessels { translate: 0 calc((1 - var(--rise, 1)) * var(--drop, 0px)); }
 .beam-label { transform: scale(var(--pop, 1)); }
 .vessel-path { fill: none; stroke: none; }
-.pulse { will-change: transform, opacity; }
+.pulse { will-change: auto; }
+/* Compositor hints only around the playhead (T15): main.js marks the active
+   layer and its neighbours .is-live (transitions drive both sides), so only
+   the big layers that are about to move get their own GPU layer. */
+.layer.is-live :is(.zoom__cam, .zoom__c, .beams-cam, .turn__box, .photo__img--skin, .vessels) { will-change: transform; }
+.layer.is-live .pulse { will-change: transform, opacity; }
 
 /* ---------- S7/S8 RGB diagram + calculation panel ---------- */
 .rgb [data-id="calc-panel"] { display: none; }
@@ -288,10 +296,12 @@
   right: 16px;
   display: flex;
   justify-content: space-between;
-  font: 400 11px/14px var(--f-body);
+  font: 400 calc(11px * var(--ct)) / 14px var(--f-body);
 }
 .card__row span + span { font-weight: 600; }
-.card--glucose .card__row { font-size: 10px; }
+/* Larger --ct text grows upwards, clear of the bars under the rows. */
+.card__row { translate: 0 calc((1 - var(--ct)) * 6px); }
+.card--glucose .card__row { font-size: calc(10px * var(--ct)); }
 .card--glucose .card__row span + span { font-weight: 400; }
 .card__foot {
   position: absolute;
@@ -303,9 +313,12 @@
   line-height: 24px;
   white-space: nowrap;
 }
+/* --ct: the small card text (units, deltas, rows) grows when the frame box is
+   fitted small (short laptop screens, ~6–7px otherwise), T15. Mobile below. */
+.card { --ct: clamp(1, calc(0.8 / var(--fs, 1)), 1.2); }
 .card__value { font: 800 22.5px/24px var(--f-body); letter-spacing: -0.4px; translate: 0 -1.5px; }
-.card__unit { margin-left: 6px; font: 500 10px/1 var(--f-body); translate: 0 -1.5px; }
-.card__delta { margin-left: auto; font: 400 9.5px/1 var(--f-body); translate: 0 -1.5px; }
+.card__unit { margin-left: 6px; font: 500 calc(10px * var(--ct)) / 1 var(--f-body); translate: 0 -1.5px; }
+.card__delta { margin-left: auto; font: 400 calc(9.5px * var(--ct)) / 1 var(--f-body); translate: 0 -1.5px; }
 
 /* ============ Mobile (< 900px, portrait; MOBILE_QUERY in config.js) ============ */
 @media (max-width: 899px) and (max-aspect-ratio: 1/1) {
@@ -401,6 +414,12 @@
   }
   .cards .connectors { display: none; }
   .card.at { width: 290px; height: 151px; zoom: var(--card-zoom, 0.55); }
+  /* The zoom takes the small card text to ~6px on a phone (T15); counter-
+     scale it to ~8–9px. Titles and values are big enough already. */
+  .card { --ct: clamp(1, calc(0.8 / var(--card-zoom, 1)), 1.45); }
+  /* Labels at the right frame edge grow leftwards and sit a little further
+     in (the face crop puts frame x 1327 at the screen edge). */
+  .beam-label--right { transform-origin: 100% 50%; translate: -36px 0; }
 }
 
 /* ---------- Reduced motion (T14) ----------
@@ -534,9 +553,9 @@
   font: 650 calc(22px * var(--ts)) / 30px var(--f-display); letter-spacing: -0.01em;
 }
 .sp__title span {
-  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  flex: none; width: calc(24px * var(--ts)); height: calc(24px * var(--ts)); border-radius: 50%;
   background: var(--c-mint); color: var(--c-navy);
-  font: 700 12px/24px var(--f-body); text-align: center;
+  font: 700 calc(12px * var(--ts)) / calc(24px * var(--ts)) var(--f-body); text-align: center;
 }
 .sp__track {
   position: absolute; left: 28px; right: 28px; top: 88px; margin: 0; padding: 0; list-style: none;
@@ -546,12 +565,12 @@
 .sp__track li { transition: color 0.25s; }
 .sp__track li.is-on { color: var(--c-navy); font-weight: 650; }
 .sp__bar { display: block; height: 3px; margin-bottom: 7px; border-radius: 2px; background: var(--c-line); overflow: hidden; }
-.sp__bar i { display: block; height: 100%; width: calc(var(--fill, 0) * 100%); background: var(--c-teal); }
+.sp__bar i { display: block; height: 100%; transform: scaleX(var(--fill, 0)); transform-origin: 0 50%; background: var(--c-teal); }
 .sp__plot { position: absolute; left: 0; top: 0; width: 686px; height: 583px; overflow: visible; }
 .sp__axis { fill: none; stroke: #8f9ea7; stroke-width: 1.2; }
 .sp__grid { fill: none; stroke: var(--c-line); stroke-width: 1; stroke-dasharray: 3 4; }
 .sp__tick { font: 500 calc(11px * var(--ts)) var(--f-body); fill: var(--c-muted-text); font-variant-numeric: tabular-nums; }
-.sp__tick--s { font-size: 9.5px; }
+.sp__tick--s { font-size: calc(9.5px * var(--ts)); }
 .sp__unit { font: 500 calc(11.5px * var(--ts)) var(--f-body); fill: #4d606c; }
 .sp__legend { font: 600 calc(12px * var(--ts)) var(--f-body); fill: var(--c-navy); }
 .sp__key { stroke-width: 3; stroke-linecap: round; }

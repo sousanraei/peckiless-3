@@ -2,6 +2,11 @@
 // Shows the current scene label, overall + segment progress, and a clickable
 // list of labels that scrolls to each one (useful for screenshots/QA).
 //
+// The overlay also shows the frame rate (rolling 1 s) and the worst frame.
+// ?debug&autoscroll[=seconds] scrolls the whole film forward then back at a
+// steady pace (native scroll, default 40 s each way) and prints the frame
+// rate per scene with console.table (T15 perf QA; needs a visible tab).
+//
 // ?debug&ref=onion (or ref=diff) also overlays the Desktop frame the static
 // layout should match at the current position (50% or difference blend).
 // The frames live above site/, so serve the project root for this
@@ -53,6 +58,80 @@ function jumpTo(app, spec, still) {
   window.scrollTo({ top: start + (t / tl.duration()) * (end - start), behavior: 'instant' });
 }
 
+const sceneAt = (app, t) => {
+  const ids = app.scenes.map((s) => s.id);
+  return ids[Math.max(0, ids.findLastIndex((id) => app.master.labels[id] <= t + 1e-6))];
+};
+
+// Frame timing from rAF: rolling fps + worst frame for the overlay, and
+// per-scene stats while an autoscroll run records.
+function initFps(app, out) {
+  let prev = 0;
+  let win = [];
+  let rec = null;
+  const loop = (now) => {
+    if (prev) {
+      const dt = now - prev;
+      win.push([now, dt]);
+      while (win.length && now - win[0][0] > 1000) win.shift();
+      if (rec && app.master) (rec[sceneAt(app, app.master.time())] ??= []).push(dt);
+      if (out) {
+        out.fps.textContent = win.length;
+        out.worst.textContent = Math.max(...win.map((w) => w[1])).toFixed(1);
+      }
+    }
+    prev = now;
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+  return {
+    start() { rec = {}; },
+    stop() {
+      const r = rec;
+      rec = null;
+      return Object.fromEntries(app.scenes.filter((s) => r[s.id]).map((s) => {
+        const d = r[s.id].slice().sort((a, b) => a - b);
+        const mean = d.reduce((a, b) => a + b, 0) / d.length;
+        return [s.id, {
+          fps: Math.round(1000 / mean),
+          p95ms: +d[Math.floor(d.length * 0.95)].toFixed(1),
+          worstms: +d.at(-1).toFixed(1),
+          over20ms: d.filter((x) => x > 20).length,
+          frames: d.length,
+        }];
+      }));
+    },
+  };
+}
+
+function autoscroll(app, fps, seconds) {
+  const { start, end } = app.trigger;
+  const leg = (from, to) => new Promise((done) => {
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / (seconds * 1000));
+      window.scrollTo({ top: from + (to - from) * k, behavior: 'instant' });
+      if (k < 1) requestAnimationFrame(step);
+      else setTimeout(done, 600); // let the scrub settle
+    };
+    requestAnimationFrame(step);
+  });
+  window.scrollTo({ top: start, behavior: 'instant' });
+  setTimeout(async () => {
+    fps.start();
+    await leg(start, end);
+    const forward = fps.stop();
+    fps.start();
+    await leg(end, start);
+    const reverse = fps.stop();
+    console.log('[autoscroll] forward');
+    console.table(forward);
+    console.log('[autoscroll] reverse');
+    console.table(reverse);
+    app.perf = { forward, reverse };
+  }, 1500);
+}
+
 export function initDebug(app) {
   const params = new URLSearchParams(location.search);
   if (params.has('ref')) initRef(app, params.get('ref'));
@@ -66,12 +145,17 @@ export function initDebug(app) {
     <div class="debug__bar"><i data-allbar></i></div>
     <div>segment <span data-seg>0</span>%</div>
     <div class="debug__bar"><i data-segbar></i></div>
+    <div>fps <span data-fps>–</span> · worst <span data-worst>–</span> ms</div>
     <ol>${app.scenes
       .map((s) => `<li data-id="${s.id}"><button type="button">${s.id}<span>${s.frames}</span></button></li>`)
       .join('')}</ol>`;
 
   const $ = (sel) => el.querySelector(sel);
   const items = [...el.querySelectorAll('li')];
+  const fps = initFps(app, { fps: $('[data-fps]'), worst: $('[data-worst]') });
+  if (params.has('autoscroll') && app.trigger) {
+    autoscroll(app, fps, Number(params.get('autoscroll')) || 40);
+  }
 
   el.addEventListener('click', (e) => {
     const li = e.target.closest('li');

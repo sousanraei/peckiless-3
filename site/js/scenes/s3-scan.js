@@ -104,17 +104,16 @@ export function build(tl, ctx) {
 
 // S2 → S3 reflow: S2's sub-headline glides up into the slot it has here (sub
 // first in Step 1), measured from the layout so it also holds on mobile, where
-// the lines wrap. CSS: .copy__sub top = var(--k) × var(--shift).
+// the lines wrap. CSS: .copy__sub translate = var(--k) × var(--shift).
 export function link(tl, ctx) {
   const { stage, reduced } = ctx;
   if (reduced) return;
   const s2 = stage.querySelector('.layer--s2-science');
   const from = s2.querySelector('.copy__sub');
   const to = ctx.layer.querySelector('.copy__sub');
-  // offsetTop includes the current relative offset; take it back out.
+  // offsetTop ignores the glide (a translate), so it is the layout slot.
   const measure = () => {
-    const base = from.offsetTop - (parseFloat(getComputedStyle(from).top) || 0);
-    from.style.setProperty('--shift', `${to.offsetTop - base}px`);
+    from.style.setProperty('--shift', `${to.offsetTop - from.offsetTop}px`);
   };
   measure();
   document.fonts?.ready.then(measure);

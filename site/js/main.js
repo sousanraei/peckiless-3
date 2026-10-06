@@ -76,13 +76,35 @@ mm.add(
     // elements of their neighbouring scenes export link(tl, ctx).
     modules.forEach((m, i) => m.link?.(master, ctxs[i]));
     fitAll(document);
-    // Decode every stage image up front so hidden layers paint instantly when
-    // they are cut to (they start visibility:hidden, which defers decoding).
-    stage.querySelectorAll('img').forEach((img) => img.decode?.().catch(() => {}));
+    // Images are decoding="async"; decode them off the critical path (idle)
+    // so hidden layers still paint instantly when they are cut to (they start
+    // visibility:hidden, which would otherwise defer decoding to first paint).
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
+    stage.querySelectorAll('img').forEach((img) => {
+      img.decoding = 'async';
+      idle(() => img.decode?.().catch(() => {}));
+    });
 
     // Pad the timeline so its length always equals the scroll length.
     master.set({}, {}, at);
     app.master = master;
+
+    // will-change only around the playhead (T15): the active layer and its
+    // neighbours get .is-live (css/scenes.css lists what it promotes).
+    if (!reduced) {
+      const layers = SCENES.map((s) => stage.querySelector(`:scope > .layer--${s.id}`));
+      const starts = SCENES.map((s) => master.labels[s.id]);
+      let live = -2;
+      const markLive = () => {
+        const t = master.time();
+        const i = starts.findLastIndex((s) => s <= t + 1e-6);
+        if (i === live) return;
+        live = i;
+        layers.forEach((l, j) => l.classList.toggle('is-live', Math.abs(j - i) <= 1));
+      };
+      master.eventCallback('onUpdate', markLive);
+      markLive();
+    }
 
     // Reduced motion: no scroll binding; each stacked scene fades in once.
     const unreveal = reduced ? reveal(stage) : null;
@@ -94,6 +116,16 @@ mm.add(
         scrub: SCRUB,
         animation: master,
       });
+      // Warm-up (T15): GSAP initialises each tween on its first render (reads
+      // computed styles, parses paths), which cost 5–37ms frames the first
+      // time a scene was scrolled into. Render the whole film once, at an idle
+      // moment, then return to where the reader is (same task, so no paint).
+      idle(() => {
+        if (app.master !== master) return;
+        const t = master.time();
+        master.progress(1);
+        master.time(t);
+      }, { timeout: 2000 });
     }
 
     return () => {

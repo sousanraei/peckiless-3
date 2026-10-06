@@ -31,6 +31,8 @@ const SEQ_IN = 0.04;
 const SEQ_OUT = 0.96;
 // Use a loaded frame this many indices away rather than drop to the fallback.
 const NEAR = 3;
+// Start decoding frames this many timeline units (viewports) before/after.
+const WARM = 0.6;
 // Face centre (frame px): origin of the fallback push-in.
 const FACE = [900, 420];
 
@@ -94,15 +96,61 @@ function preload() {
   };
   for (let k = 0; k < 4; k++) next();
 }
-// Let the hero's own images go first; the turn is one scroll away.
-if (document.readyState === 'complete') preload();
-else window.addEventListener('load', preload, { once: true });
+// Let the hero's own images go first (page load, then the first idle
+// moment); the turn is one scroll away, and the coarse pass (6 frames) makes
+// it scrubbable within a few requests.
+const preloadSoon = () => (window.requestIdleCallback
+  ? requestIdleCallback(preload, { timeout: 1500 })
+  : setTimeout(preload, 0));
+if (document.readyState === 'complete') preloadSoon();
+else window.addEventListener('load', preloadSoon, { once: true });
 
-// Nearest loaded frame to i within NEAR, or null.
+// ---------- Decoded-frame window (T15) ----------
+// drawImage on an <img> decodes on the main thread once Chrome has evicted the
+// decoded pixels (90 frames ≈ 420MB decoded, so it does): ~10ms per new frame,
+// most of a 60fps budget. Frames near the playhead are decoded off the main
+// thread into ImageBitmaps (from the HTTP-cached file); the window slides with
+// the playhead, starts filling before the turn is reached, and is released
+// when the playhead is far away.
+const WIN = 8; // frames each side (17 × 4.7MB decoded)
+const bitmaps = new Map(); // i → ImageBitmap | 'pending'
+const canBitmap = typeof createImageBitmap === 'function';
+
+function warm(center) {
+  for (const [i, b] of bitmaps) {
+    if (Math.abs(i - center) <= WIN) continue;
+    if (b !== 'pending') b.close();
+    bitmaps.delete(i);
+  }
+  if (!canBitmap || center < -WIN) return;
+  for (let k = 0; k <= WIN; k++) {
+    for (const i of [center + k, center - k]) {
+      if (i < 0 || i >= seq.count || bitmaps.has(i) || !seq.imgs[i]) continue;
+      bitmaps.set(i, 'pending');
+      fetch(frameUrl(i))
+        .then((r) => r.blob())
+        .then((blob) => createImageBitmap(blob))
+        .then((b) => {
+          if (bitmaps.get(i) !== 'pending') return b.close();
+          bitmaps.set(i, b);
+          seq.onLoad.forEach((fn) => fn(i));
+        })
+        .catch(() => bitmaps.delete(i));
+    }
+  }
+}
+
+// Nearest drawable frame to i within NEAR, decoded bitmaps first: [source, index] or null.
 function nearest(i) {
   for (let k = 0; k <= NEAR; k++) {
-    if (seq.imgs[i - k]) return seq.imgs[i - k];
-    if (seq.imgs[i + k]) return seq.imgs[i + k];
+    for (const j of [i - k, i + k]) {
+      const b = bitmaps.get(j);
+      if (b && b !== 'pending') return [b, j];
+    }
+  }
+  for (let k = 0; k <= NEAR; k++) {
+    if (seq.imgs[i - k]) return [seq.imgs[i - k], i - k];
+    if (seq.imgs[i + k]) return [seq.imgs[i + k], i + k];
   }
   return null;
 }
@@ -209,8 +257,11 @@ export function link(tl, ctx) {
 
   const draw = (force) => {
     const t = tl.time();
-    if (t < S || t > E) return;
     const k = ease(gsap.utils.clamp(0, 1, (t - p(SEQ_IN)) / ((SEQ_OUT - SEQ_IN) * d)));
+    // Keep decoded frames around the playhead from just before the turn to
+    // just after it; release them further away.
+    if (!seq.failed && !forceFallback) warm(t > S - WARM && t < E + WARM ? Math.round(k * (seq.count - 1)) : -Infinity);
+    if (t < S || t > E) return;
 
     // Frame box: S1's fit → S2's fit (identical on desktop; on mobile the
     // face crops differ, so the crop travels with the turn).
@@ -221,15 +272,16 @@ export function link(tl, ctx) {
     box.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
 
     const i = Math.round(k * (seq.count - 1));
-    const img = seq.failed || forceFallback ? null : nearest(i);
-    const mode = img ? 'seq' : 'fallback';
+    const hit = seq.failed || forceFallback ? null : nearest(i);
+    const mode = hit ? 'seq' : 'fallback';
     if (layer.dataset.mode !== mode) layer.dataset.mode = mode;
-    if (!img) return;
+    if (!hit) return;
+    const [img, at] = hit;
 
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const cw = Math.round(layer.clientWidth * dpr);
     const ch = Math.round(layer.clientHeight * dpr);
-    const key = `${img.src}|${x.toFixed(1)},${y.toFixed(1)},${s.toFixed(4)}|${cw}x${ch}`;
+    const key = `${at}${img instanceof HTMLImageElement ? 'i' : 'b'}|${x.toFixed(1)},${y.toFixed(1)},${s.toFixed(4)}|${cw}x${ch}`;
     if (!force && key === last) return;
     last = key;
     if (canvas.width !== cw || canvas.height !== ch) {

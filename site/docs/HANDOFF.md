@@ -584,3 +584,46 @@ The frame hex values stay in tokens.css for strokes and fills; the new tokens ar
 - S7's five stage titles (`h3`) are all in the accessibility tree in reduced mode (only the BVP one is visible). They read as the list of processing stages.
 
 **Next step → T15:** performance + QA (Lighthouse / perf trace, `will-change` only on the active scene, lazy-decoded images, full forward/reverse scroll at desktop, tablet and mobile sizes).
+
+---
+
+## T15 Performance + QA (done, 2026-10-06)
+
+Built directly on `main`.
+
+**Perf audit** (Browser pane, real Chrome). The pane was hidden for the whole session (`visibilityState: hidden`, rAF paused), so frame rates could not be read from rAF. Instead each step was timed synchronously: seek the master timeline + `gsap.ticker.tick()` + forced style/layout, every 0.0125 timeline units (~1,700 steps) over the full film, forward and reverse.
+- Warm (second pass), every scene: p95 ≤ 0.7 ms of main-thread work per frame, worst < 4 ms. That leaves most of a 16.7 ms frame for paint/composite, so ~60 fps on desktop is expected. Run `?debug&autoscroll` in a visible tab to confirm on real hardware (see Tooling).
+- First pass after load had spikes: up to **37 ms** at the start of T5 (GSAP initialises each tween on its first render) and **10–14 ms every turn frame** (drawImage decoding a 1280×910 WebP on the main thread; 90 decoded frames ≈ 420 MB, so Chrome evicts them). After the fixes below, worst first-pass frame is 11.8 ms and turn frames are ≤ 6 ms.
+
+**Fixed**
+- **Layout-thrashing properties removed.**
+  - The headline reflow glides (S2→S3, D14→D15) animated `top` (layout every frame). They now use `translate: 0 calc(--k × --shift) !important`. `!important` because GSAP writes `translate: none` inline on elements it transforms; `translate` composes with GSAP's `transform`, so glide + wipe offsets still add up. s3-scan.js / s5-pixels.js measure with plain `offsetTop` (translate doesn't affect it).
+  - S7's stage-track bars animated `width`; now `transform: scaleX(var(--fill))`.
+  - Remaining animated non-transform properties are paint-only and small or deliberate: the S1 glow mask radius, the T2/T4 mask feather (`--fe`), the S9 background colour, `clip-path` on headline lines, `stroke-dashoffset` (DrawSVG). The fallback turn's `filter: blur` only runs when the sequence is missing (`?noseq`).
+- **`will-change` only around the playhead.** main.js tags the active layer and its two neighbours `.is-live` (master `onUpdate`, changes only on a scene boundary). CSS promotes only the big moving layers there (`.zoom__cam`, `.zoom__c`, `.beams-cam`, `.turn__box`, `.photo__img--skin`, `.vessels`) plus the vessel `.pulse` dots (previously always promoted). Off in reduced mode.
+- **Lazy-decoded images.** Every stage image + the nav logo is `decoding="async"`; the up-front `img.decode()` now runs in `requestIdleCallback`.
+- **Turn sequence.** Preload still starts on page load but waits for the first idle moment (the hero's own images go first). New decoded-frame window in t1-turn.js: frames within ±8 of the playhead are decoded **off the main thread** into `ImageBitmap`s (`fetch` from HTTP cache → `createImageBitmap(blob)`); the window starts filling 0.6 viewport before the turn, slides with it, and is closed/released when the playhead is further away (≈ 80 MB max). Draws prefer a bitmap within ±3 frames and fall back to the `<img>`. Verified: a 40 ms/step scrub through the turn drew 116/116 frames from bitmaps.
+- **Tween warm-up.** After the ScrollTrigger is created, main.js renders the whole film once at idle (`master.progress(1)` → `master.time(t)`, same task, no paint). Verified: no visible element differs before/after (computed opacity, visibility, transform, clip-path, filter, dash), and the 61-point forward/reverse sweep (global timeline paused so ambient loops don't count) is identical on all 1,142 stage elements.
+
+**QA sweep** (automated: every scene at 0.25/0.5/0.75/0.98, every visible text node checked for viewport clipping and on-screen size < 7.5 px; pill scrollers excluded)
+| Viewport | Found | Action |
+|---|---|---|
+| 1440×900 | nothing | — |
+| 1280×720 | D19 card units/deltas/rows ~6.3–7 px; S7 inset ticks, S8 peak labels, R/B subscripts ~6–6.8 px | cards: `--ct` text scale `clamp(1, 0.8/--fs, 1.2)`; S7/S8 logged (frame annotation size) |
+| 768×1024 | S7 inset ticks 6.8 px, S8 peak labels 7.2 px, R/B subscripts 6.8 px | S7 inset ticks now scale with `--ts`; S8 logged |
+| 375×812 | S9 card text 5.7–6.3 px; S6 "Vessels reflect light" clipped at the right edge; S7 inset ticks 4.4 px and stage-number badge 6.2 px; S8 as T13 notes | cards `--ct` from `--card-zoom` (≈1.39 → ~8–9 px; rows lifted so they clear the bars); right-edge beam labels grow leftwards + `translate: -36px` (`.beam-label--right`, set in s6-vessels.js); `.sp__tick--s` and the `.sp__title span` badge scale with `--ts` |
+No horizontal overflow at any size. No console errors in motion, `?reduced` or `?noseq` modes. Reduced mode: no `.is-live`, 0 turn-frame requests.
+
+**Tooling** (js/debug.js)
+- `?debug` overlay now shows fps (rolling 1 s) and the worst frame.
+- `?debug&autoscroll[=seconds]` scrolls the whole film forward then back with native scroll (default 40 s each way) and prints per-scene fps / p95 / worst / frames > 20 ms via `console.table` (also on `__film.perf`). Needs a visible tab — I could only run it with a patched rAF in the hidden pane, where throttled timers make the numbers meaningless.
+
+**Screenshots:** `docs/shots/t15-turn-bitmap-1280.jpg` (turn mid-way, bitmap draw), `t15-finale-cards-1280x720.jpg`, `t15-mobile-375-s7-labels.jpg`, `t15-mobile-375-s9-cards.jpg`.
+
+**Known issues / logged**
+- Real-device fps not measured (hidden pane). Do one `?debug&autoscroll` run in a visible desktop Chrome before stakeholder review.
+- S8 analysis annotations (RR interval labels, R/B subscripts, SpO₂ formulas) are 6–7 px below ~1300 px wide and on phones. Bumping them collides with neighbouring blocks (see T13); a fix needs a re-laid-out S8.
+- S7 band-pass inset tick labels are ~7 px on a phone even after the fix (small inset by design).
+- First-pass cost before the idle warm-up finishes: scrolling straight into the film within ~1 s of load can still hit one 10–12 ms frame.
+
+**Next step → T16:** publish `site/` as a multi-file private Artifact (page + `files` map; the 90 turn frames ≈ 3 MB fit), check it in the Browser pane, write `site/README.md` (run locally + scene map), give the user the link.

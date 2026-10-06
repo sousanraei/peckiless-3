@@ -62,7 +62,7 @@ function vesselsMarkup() {
 export function build(tl, ctx) {
   const { layer, reduced } = ctx;
   layer.classList.add('scene', 'scene--light');
-  const labels = LABELS.map(([t, r]) => `<span class="beam-label at" style="${at(r)}">${t}</span>`).join('');
+  const labels = LABELS.map(([t, r]) => `<span class="beam-label at${r[0] + r[2] > 1300 ? ' beam-label--right' : ''}" style="${at(r)}">${t}</span>`).join('');
   const photo = photoBox('skin', 16, {
     focusM: '560 230 760 640',
     targetM: '0 0.38 1 0.5',

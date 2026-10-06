@@ -20,5 +20,5 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T12 | Wave → vitals + finale (D18→D19) | done |
 | T13 | Mobile choreography pass | done |
 | T14 | Reduced motion + accessibility | done |
-| T15 | Performance + QA | todo |
+| T15 | Performance + QA | done |
 | T16 | Publish (Artifact) + README | todo |

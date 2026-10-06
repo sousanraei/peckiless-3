@@ -44,11 +44,10 @@ export function build(tl, ctx) {
   const head14 = d14.querySelector('.copy__h');
   const sub14 = d14.querySelector('.copy__sub');
   // Offsets from the D14 slots to the D15 ones, measured from the layout so
-  // they hold on mobile too (CSS: .copy__h / .copy__sub top = --k × --shift).
+  // they hold on mobile too (CSS: .copy__h / .copy__sub translate = --k × --shift).
   const measure = () => {
-    const base = (el) => el.offsetTop - (parseFloat(getComputedStyle(el).top) || 0);
-    head14.style.setProperty('--shift', `${d15.querySelector('.copy__h').offsetTop - base(head14)}px`);
-    sub14.style.setProperty('--shift', `${d15.querySelector('.copy__sub').offsetTop - base(sub14)}px`);
+    head14.style.setProperty('--shift', `${d15.querySelector('.copy__h').offsetTop - head14.offsetTop}px`);
+    sub14.style.setProperty('--shift', `${d15.querySelector('.copy__sub').offsetTop - sub14.offsetTop}px`);
   };
   measure();
   document.fonts?.ready.then(measure);
