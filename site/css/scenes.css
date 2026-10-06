@@ -196,6 +196,14 @@
   color: var(--c-cta-ink);
 }
 
+/* T3 into the skin (t3-skin.js): the skin image and the vessel overlay rise
+   by (1 - --rise) × --drop; --rise is scrubbed, --drop measured per fit.
+   Labels pop via --pop (a transform, so the mobile `scale` rule still holds). */
+.photo__img--skin, .vessels { translate: 0 calc((1 - var(--rise, 1)) * var(--drop, 0px)); }
+.beam-label { transform: scale(var(--pop, 1)); }
+.vessel-path { fill: none; stroke: none; }
+.pulse { will-change: transform, opacity; }
+
 /* ---------- S7/S8 RGB diagram + calculation panel ---------- */
 .rgb [data-id="calc-panel"] { display: none; }
 .rgb-label {
