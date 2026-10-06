@@ -115,4 +115,8 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 - **Ambient loops** (`js/lib/ambient.js`, T3): `ambient(tl, ctx, from, to, loops)` plays paused, time-based tweens only while the master playhead is inside `[from, to]` (so they follow the scrubbed layer visibility, and work with `?still`). Skipped under reduced motion. It registers its ticker removal with `ctx.onCleanup(fn)` (main.js runs those when the matchMedia context reverts).
 
 ## Image sequences (`assets/seq/`)
-_T4: `assets/seq/turn/` head-turn frames._
+**`assets/seq/turn/`** (T4): head turn D10 → D11, `turn-000.webp` … `turn-089.webp` (90 frames, 1280×910, ~3.0 MB) + `manifest.json` (`count`, `pattern`, `px`, `frame`, `from`, `to`).
+- Every frame is the **whole 1440×1024 frame box** at 1280w (1 frame px = 0.889 image px), so draw it with the same fit as the photo boxes (desktop cover; mobile `focus` crop). No per-frame placement needed.
+- Frame 000 = `hero-a-glow` placed as D10 and frame 089 = `front` placed as D11 (mean diff < 2/255 against the site photos), so the canvas can take over from and hand back to the `<img>` boxes with no pop.
+- Source: `tools/seq/turn-source.mp4` (AI image-to-video, 752×560, 97 frames @24fps) generated from `tools/seq/user-first-d10.jpg` / `user-last-d11.jpg` (2000×1422 = frame space ×1.389; higher-res than `assets/img`). Rebuild with `python3 tools/seq/build_turn.py`.
+- Content timeline (frame index): phone lowers and leaves the frame 0–45, she blinks ~20, glow dots fade out ~30–55, window/plant background dissolves into the blue wall ~55–75, settled 75–89.

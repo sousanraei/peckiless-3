@@ -9,7 +9,7 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T1 | Asset extraction + optimisation | done |
 | T2 | Static layout of all scenes (no motion) | done |
 | T3 | S1 Hero glow + vital chips (D9→D10) | done |
-| T4 | Head-turn footage (AI image-to-video) | todo |
+| T4 | Head-turn footage (AI image-to-video) | done |
 | T5 | T1 transition (D10→D11) | todo |
 | T6 | S2–S4 Science, scan, ROI (D11–D13) | todo |
 | T7 | Zoom + pixel sampling (D13→D15) | todo |

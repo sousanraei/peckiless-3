@@ -141,3 +141,31 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - The preview launcher still can't read iCloud: start `python3 -m http.server 8080` from Bash in `site/`, then `preview_start site`.
 
 **Next step → T4:** generate the head-turn image-to-video clip (first frame `assets/img/hero-a-glow.webp` placed as D10, last frame `front.webp` as D11), export 60–90 WebP frames to `assets/seq/turn/`, or mark T4 `blocked` with the reason so T5 uses the crossfade fallback. Note for T5: the S1 icon loops currently run until S1's window end (mid t1-turn); T5 should fade the chips out there.
+
+---
+
+## T4 Head-turn footage (done, 2026-10-06)
+
+**Built**
+- `assets/seq/turn/turn-000…089.webp`: 90 frames, 1280×910 (the full 1440×1024 frame box), WebP q74, **3.0 MB** total, plus `manifest.json`. See ASSET_MAP "Image sequences".
+- `tools/seq/build_turn.py` (python3 + numpy + opencv-python-headless + Pillow, all `pip3 install --user`): decodes the clip, aligns it to the frames, writes the sequence. Re-run it to rebuild after replacing the clip.
+- `tools/seq/turn-source.mp4`: the clip (copy of the user's `davinci_locked_off_static_camera…mp4` in the project root). `tools/seq/user-first-d10.jpg` / `user-last-d11.jpg`: the 2000×1422 end frames the user generated it from.
+
+**How the clip was made**: Figma Weave could not be used (video models need a paid Figma plan; this account is Starter/View seat, and uploads returned 403). The user generated the clip themselves (first/last-frame image-to-video, prompt: locked-off camera, phone lowers, head turns to camera, glow dots fade, window background dissolves to a soft pale-blue wall, same identity).
+
+**Alignment (why the frames line up)**
+- The generator crops/reframes slightly: clip frame 1 → D10 is a similarity at scale 2.816, clip frame 97 → D11 at 2.632 (SIFT + RANSAC, ~140 and ~115 inliers). Each clip frame is warped by the similarity interpolated linearly in time between the two, then edge-replicated (the last frame was a few px short of the right edge).
+- The user's 2000px frames are exactly frame space (they map onto the site's photo boxes at scale 0.6400, offset < 1px).
+- The first and last 6 frames smoothstep-blend into the site's own `hero-a-glow`/`front` photos placed as in T2: frame 000 vs D10 1.7/255, frame 089 vs D11 1.3/255 (WebP noise only).
+- 97 → 90 frames by even resampling. Step-to-step mean diff 3.4/255, max 6.0 (where a source frame was skipped), no spikes.
+
+**Review**: `docs/shots/t4-sequence-sheet.jpg` (every 6th frame), `docs/shots/t4-faces.jpg` (face crops at 0/20/40/60/75/89), `docs/shots/t4-preview.webp` (animated, forward + back). Identity holds (face, freckles, hair, sweater).
+
+**Known issues / notes**
+- The clip is only 752×560, so mid-turn frames are ~1.8× upscaled and softer than the photos; the sharp end photos blend in over 6 frames at each end. A regenerated clip at 1080p+ would drop straight into `build_turn.py` (keep the same end frames).
+- Eye colour reads slightly browner mid-turn (frames ~30–70) than in D10/D11 (green). Subtle at full size.
+- She blinks around frame 20 (natural, but visible when scrubbing slowly).
+- Only the site's photos are used as end anchors; `user-*.jpg` are higher-res versions of `hero-a-glow`/`front` and could replace them later (T15) if crispness matters.
+- No site code changed in T4.
+
+**Next step → T5:** in a `t1-turn` module, add a `<canvas>` in a frame box over the S1 photos, preload `assets/seq/turn/manifest.json` + frames (decode with `createImageBitmap`), and map the t1-turn segment progress → frame index (draw cover-fit like the photo boxes). Show the canvas only inside t1-turn: at frame 0 it equals the D10 glow photo, at frame 89 it equals the D11 `front` photo, so swap layers there with no crossfade. Choreograph the chips sinking/fading (S1 icon loops currently run until S1's window end, mid t1-turn), the headline line-mask swap, and build the crossfade fallback for reduced motion / missing frames.

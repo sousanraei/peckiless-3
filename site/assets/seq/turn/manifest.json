@@ -1,0 +1,23 @@
+{
+ "count": 90,
+ "pattern": "turn-{i:03d}.webp",
+ "pad": 3,
+ "px": [
+  1280,
+  910
+ ],
+ "frame": [
+  1440,
+  1024
+ ],
+ "fps_source": 24,
+ "from": {
+  "photo": "hero-a-glow",
+  "frame": 10
+ },
+ "to": {
+  "photo": "front",
+  "frame": 11
+ },
+ "bytes": 3000998
+}
