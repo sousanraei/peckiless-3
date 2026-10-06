@@ -101,12 +101,15 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 | `.chrome` > `#nav` | index.html | all | persistent nav. A frame box fixed to the viewport (contain-fit, top-anchored) on desktop; plain fixed bar on mobile |
 | `#stage` | index.html | all | pinned stage; every scene appends one `.layer` |
 | `.layer--<scene-id>` | main.js | its scene | one per config entry, created in config order (transitions stay empty until their task) |
-| `.layer--shared` > `#pills` | js/shared.js | S2–S8 | step-pill row. `data-active` = number of lit pills, set from each scene's `step` in config.js |
+| `.layer--shared` > `#pills` | js/shared.js | S2–S8 | step-pill row. `data-active` = number of lit pills, set from each scene's `step` in config.js. Lighting a pill eases its colours (CSS transition) and pops its `.pill__dot` (scrubbed keyframes, T6); on mobile the scroller centres the newest lit pill |
 | `#diagram` | s7-clean.js | S7, S8, T4 (beams → arrows), T5 | RGB diagram: inlined `rgb-d17.svg` + "RGB channels" label + `[data-id="arrow-tails"]` (off-canvas shaft extensions) |
 | `#calc-panel` > `.panel__body` | s7-clean.js | S7 (T10), S8 (T11), T5 | the calculation panel as HTML (the SVG's own `calc-panel` rect is hidden). Draw panel content into `.panel__body` |
 | `.layer--s1-hero .chip--<vital> .icon`, `.card--<vital> .icon` | s1-hero.js / s9-finale.js | T3, T12 | icon stacks; the glyph's moving part is `[data-id="body"]` |
 | `.layer--s1-hero`, `.layer--s2-science` `[data-turn]` | t1-turn.js | T1 turn (T5) | `on` during t1-turn: the layer drops its background and `.photo` (scenes.css) so the turn canvas, which sits under every layer (`z-index: -1`), shows through |
-| S1 `.results__title`, `.chip`, `.tags`, `.copy__h span`, `.copy__sub`; S2 `.copy__h span`, `.copy__sub`; `#pills` | s1-hero.js / s2-science.js / shared.js | T1 turn (T5) | t1-turn.js animates S1 out (chips sink, line-mask wipe up) and S2 in (line-mask wipe from below); it also eases `#pills` in (x + fade) at 70–95% of the turn |
+| S1 `.results__title`, `.chip`, `.tags`, `.copy__h span`, `.copy__sub`; S2 `.copy__h span`, `.copy__sub`; `#pills` | s1-hero.js / s2-science.js / shared.js | T1 turn (T5) | t1-turn.js animates S1 out (chips sink, line-mask wipe up) and S2 in (line-mask wipe from below); it also slides the `#pills .pill` items in from the right, staggered, at 64–96% of the turn |
+| S2 `.copy__h span`, `.copy__sub` (`--k`, `--shift`), `.photo__img`; S3 `.copy__h span` | s2-science.js / s3-scan.js | S2 → S3 reflow (T6) | S2's headline wipes out, its sub-headline glides (relative `top` = `--k` × measured `--shift`) into S3's slot and the photo eases the 4px D11 → D12 offset, so the cut at the s3-scan label is invisible |
+| S3 `.scan__head` (inside `.overlay.scan`) | s3-scan.js | S3 (T6) | the scanner (line + glow + trail) clipped to the face outline; its `y` is the sweep. Replaces the static `scan-line-d12.svg` overlay (same stroke and gradient) |
+| S4 `[data-id="roi-forehead|roi-cheek-left|roi-cheek-right"]` | s4-roi.js | S4 (T6), T2 zoom (T7) | drawn on with DrawSVG; end state = the D13 rects exactly (`scale 1`, `fill-opacity 0`) |
 
 **Inlined SVG ids.** `js/lib/dom.js` `svg()` makes every id unique (`<id>--<n>`) and keeps the original as `data-id`, so query parts as `layer.querySelector('[data-id="roi-cheek-right"]')`, never `#roi-cheek-right`.
 
@@ -114,6 +117,7 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 - **Frame boxes** (`.fbox`, `js/lib/fit.js`): 1440×1024 boxes in frame px, scaled into their host. Desktop: photos `cover`, UI/diagram/panel/D19 cards `contain`, nav `contain-top`. At exactly 1440×1024 (or any 1.406 aspect) both fits coincide, so the stage matches the frames. Mobile: photos use `focus` (a frame-px rect fitted into a fraction of the stage, top edge faded), UI boxes switch to flow layout (`data-m-fit="none"`). The applied scale is `--fs` on the box.
 - **Placement**: `at([x,y,w,h])` → `--x/--y/--w/--h` + class `.at` (absolute on desktop; chips, pills and cards reflow on mobile).
 - **Static schedule** (`js/lib/static.js`): each scene is held for its segment plus half of each neighbouring transition; `shows` in config.js says which frame(s) it shows (two → hard switch at the midpoint). `frameAt(tl, t)` returns the frame on screen.
+- **Line-mask wipe** (`js/lib/wipe.js`, T5/T6): `headLines(layer, withSub)`, `wipeOut(tl, els, at, {duration, stagger})`, `wipeIn(...)` — the headline swap used by the turn, S2 → S3 and S3 → S4.
 - **Ambient loops** (`js/lib/ambient.js`, T3): `ambient(tl, ctx, from, to, loops)` plays paused, time-based tweens only while the master playhead is inside `[from, to]` (so they follow the scrubbed layer visibility, and work with `?still`). Skipped under reduced motion. It registers its ticker removal with `ctx.onCleanup(fn)` (main.js runs those when the matchMedia context reverts).
 
 ## Image sequences (`assets/seq/`)

@@ -59,6 +59,9 @@
   background-clip: text;
 }
 .copy__h + .copy__sub, .copy__sub + .copy__h { margin-top: 7px !important; }
+/* Reflow glide (S2 → S3): --shift is measured, --k is scrubbed 0 → 1. A
+   relative offset, since GSAP writes `translate: none` inline on the lines. */
+.copy__sub { position: relative; top: calc(var(--k, 0) * var(--shift, 0px)); }
 
 /* ---------- S1 hero: tags, CTA, results + chips ---------- */
 .tags {
@@ -145,6 +148,7 @@
   border: 1px solid var(--c-line);
   border-radius: var(--radius-step);
   background: var(--c-panel);
+  transition: border-color 0.35s ease;
 }
 .pill__dot {
   position: absolute;
@@ -175,8 +179,8 @@
   --dot: var(--c-mint);
   --label: var(--c-ink-3);
 }
-.pill .pill__dot { background: var(--dot, var(--c-line)); }
-.pill .pill__label { color: var(--label, var(--c-muted)); }
+.pill .pill__dot { background: var(--dot, var(--c-line)); transition: background-color 0.35s ease; }
+.pill .pill__label { color: var(--label, var(--c-muted)); transition: color 0.35s ease; }
 
 /* ---------- S6 / D16 light-path labels ---------- */
 .beam-label {

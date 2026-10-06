@@ -7,7 +7,7 @@
 // Choreography (fractions of the segment): chips + results title sink and fade
 // 0–0.3, tags fade, the S1 headline lines wipe out upward 0.16–0.44, the S2
 // headline lines wipe in from below 0.54–0.84 (the eyebrow is identical in
-// both, so it never moves), the pill row eases in 0.7–0.95. The footage
+// both, so it never moves), the step pills slide in one by one 0.64–0.96. The footage
 // itself fades the glow dots and dissolves the window into the blue wall.
 //
 // Fallback (frames missing / not loaded yet near the playhead, or ?noseq):
@@ -18,6 +18,7 @@
 import { ASSETS } from '../assets.js';
 import { h, boxStyle } from '../lib/dom.js';
 import { hold } from '../lib/static.js';
+import { headLines, wipeOut, wipeIn } from '../lib/wipe.js';
 
 const { gsap } = window;
 
@@ -167,27 +168,17 @@ export function link(tl, ctx) {
   }, p(0.04));
   tl.to(s1.querySelector('.tags'), { autoAlpha: 0, y: '-=10', duration: 0.12 * d, ease: 'power2.in' }, p(0.1));
 
-  // Line-mask wipe: each line is clipped to its own box (padded for ascenders
-  // and descenders); out = the clip closes from the bottom while the line
-  // lifts, in = it opens from the top edge down while the line rises into place.
-  const OPEN = 'inset(-30% -4% -30% -4%)';
-  const SHUT_UP = 'inset(-30% -4% 130% -4%)';
-  const SHUT_DOWN = 'inset(130% -4% -30% -4%)';
-  // The gradient sub-headline is painted by its <p> (background-clip: text),
-  // so it wipes as one block after the headline lines.
-  const lines = (l) => [...l.querySelectorAll('.copy__h span, .copy__sub')];
-  tl.fromTo(lines(s1), { clipPath: OPEN, y: 0 }, {
-    clipPath: SHUT_UP, y: -28, duration: 0.16 * d, ease: 'power2.in', stagger: 0.035 * d, immediateRender: false,
-  }, p(0.16));
-  tl.fromTo(lines(s2), { clipPath: SHUT_DOWN, y: 36 }, {
-    clipPath: OPEN, y: 0, duration: 0.2 * d, ease: 'power3.out', stagger: 0.035 * d,
-  }, p(0.54));
+  // Line-mask wipe (js/lib/wipe.js): S1 lines + sub-headline out, S2 in.
+  wipeOut(tl, headLines(s1, true), p(0.16), { duration: 0.16 * d, stagger: 0.035 * d });
+  wipeIn(tl, headLines(s2, true), p(0.54), { duration: 0.2 * d, stagger: 0.035 * d });
 
-  // ---- Pill row (shared #pills) eases in as she settles. ----
-  const pills = stage.querySelector('#pills');
-  if (pills) {
-    tl.fromTo(pills, { autoAlpha: 0, x: isMobile ? 40 : 120 },
-      { autoAlpha: 1, x: 0, duration: 0.25 * d, ease: 'power3.out' }, p(0.7));
+  // ---- Step pills (shared #pills) slide in from the right, one by one, as
+  // she settles. ----
+  const pills = stage.querySelectorAll('#pills .pill');
+  if (pills.length) {
+    tl.fromTo(pills, { autoAlpha: 0, x: isMobile ? 48 : 140 }, {
+      autoAlpha: 1, x: 0, duration: 0.2 * d, ease: 'power3.out', stagger: 0.03 * d,
+    }, p(0.64));
   }
 
   // ---- Fallback crossfade (push-in, light sweep, blur), keyed to scroll. ----

@@ -198,3 +198,30 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - Pane-hidden caveat still applies (rAF stops): use `?still` + `gsap.ticker.tick()`, or take a screenshot to wake the pane.
 
 **Next step → T6:** S2–S4 (D11–D13) in `s2-science.js`, `s3-scan.js`, `s4-roi.js`: pill active states (and optionally take over the pill entrance from t1-turn.js), headline reflow, the green scan line mapped 1:1 to scroll with a face-clipped trail, ROI boxes drawn on with DrawSVG.
+
+---
+
+## T6 S2–S4 Science, face scan, ROI (done, 2026-10-06)
+
+**Built**
+- `js/lib/wipe.js`: the line-mask wipe from T5 as helpers (`headLines`, `wipeOut`, `wipeIn`); t1-turn.js now uses them too.
+- **Pill row** (`js/shared.js`, `t1-turn.js`, scenes.css): the pills slide in from the right one by one (stagger) at 64–96% of the turn, replacing the whole-row slide. When a step lights, its colours ease (0.35s CSS transition) and its dot pops (scrubbed keyframes 1 → 1.35 → 1, so it reverses cleanly); this applies to every later step too. Mobile: a MutationObserver on `data-active` smooth-scrolls the pill scroller to centre the newest lit pill (this closes the T2 note).
+- **S2 (D11)**, `s2-science.js` (segment fractions): reading pause 0–0.5, headline lines wipe out upward 0.5–0.8, photo eases +4px (D11 → D12 placement) 0.7–1.0. `s3-scan.js` `link()` glides S2's sub-headline up into its Step 1 slot 0.7–1.0: CSS `top: calc(var(--k) * var(--shift))` with `--shift` measured from the layout (re-measured on resize and `fonts.ready`), so it also holds on mobile where the lines wrap. A relative `top` rather than `translate`, because GSAP writes `translate: none` inline on elements it transforms.
+- **S3 (D12)**, `s3-scan.js`: headline wipes in 0–0.28. The scanner is the D12 line (same 2px stroke and gradient) plus a blurred glow and a 120px gradient trail, drawn 700–1060 wide and clipped to a face outline (`FACE`, frame px), so the line's length follows the face; at the brow it is exactly D12's 757.5 → 991. It fades in at the hairline 0.08–0.14, sweeps y 262 → 598 **linearly** 0.12–0.82 (passes the brow = D12 at ~0.35), fades at the chin, then the headline wipes out 0.84–1. A shimmer (the bright stop drifts along the line, 1.4s yoyo) runs via `ambient()` only while the scanner is on screen. The static `scan-line-d12.svg` is no longer inlined (its values live in the scanner markup).
+- **S4 (D13)**, `s4-roi.js`: headline wipes in 0–0.28 (the sub-headline stays). The three boxes draw on with DrawSVG 0.1 / 0.2 / 0.3 (forehead, viewer-left cheek, viewer-right cheek), each settling from scale 1.12 with a brief teal lock-on fill; all settled by ~0.65, so the rest of S4 and the hold into t2-zoom show D13.
+
+**Verified** (Browser pane, `?still` + `__film.master.time()`)
+- Seams: at the s3-scan label the S2 and S3 sub-headlines and photos are at identical positions (desktop 172.16px both, photo top −1.40 both; mobile within 0.12px); S3's headline is fully clipped at its start and wiped out by its end; the scanner is at opacity 0 by the s4-roi label.
+- Scan maps 1:1 to scroll: constant 342.9 frame px per unit across five samples, hairline → chin. Native scroll to `s3-scan+0.5` → t = 5.300, line at y 444.5 as predicted.
+- ROI end state = D13 exactly (bboxes 773.5,300.5 132×62 · 755.5,433.5 81×62 · 911.5,407.5 81×62, fully drawn, identity transform, fill-opacity 0).
+- Forward vs reverse sweep over 61 points from the turn to mid t2-zoom (layer visibility, every headline line's clip/transform, sub offsets, photo transform, scanner, pill opacity/transform/dot scale, ROI dash/transform/fill): identical.
+- Mobile 375×812: reflow, scan and ROI read cleanly; pill scroller follows the active step (scrollLeft 359 at step 4); no horizontal overflow. No console errors.
+- Screenshots: `docs/shots/t6-desktop.jpg` (S2 0.88 / S3 0.2 / S3 0.6 / S4 0.25 / S4 0.8), `docs/shots/t6-mobile-375.jpg` (S3 0.5, S4 0.8).
+
+**Known issues / notes**
+- Pausing exactly at the `s3-scan` / `s4-roi` labels now shows mid-reflow (headline not yet in). Matching frames: D11 at `s2-science+0.3`, D12 at `s3-scan+0.35` (line at the brow), D13 at `s4-roi+0.7`. The `?ref=` overlay still switches at the labels.
+- Headless Chrome screenshots (`--screenshot`) hung this time; pane screenshots need a ~1s wait after a seek or they show the previous paint.
+- The face outline is hand-traced; the top of the clip includes a little hair at the hairline, which reads as the scan "entering" the face.
+- Reduced motion: scanner static at the brow (= D12) without trail; ROI boxes and headlines static. T14 does the real version.
+
+**Next step → T7:** t2-zoom (D13 → D15): push the camera into `[data-id="roi-cheek-right"]` of the S4 layer, hand off to the `cheek` photo (S5) with no jump, grow the small box into `#roi-big` (roi-d14.svg), then the swatch grid fill in S5. S4's boxes are settled from ~0.65 of its segment, and its hold runs to mid t2-zoom.
