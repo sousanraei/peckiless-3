@@ -11,7 +11,7 @@ export const BREAKPOINT = 900; // px; desktop ≥ BREAKPOINT
 
 export const SCENES = [
   { id: 's1-hero',    kind: 'scene',      frames: 'D9 → D10',  title: 'Hero glow + vital chips', units: 2.0, module: 's1-hero.js',    shows: [9, 10] },
-  { id: 't1-turn',    kind: 'transition', frames: 'D10 → D11', title: 'Head turn',               units: 1.6, module: null },
+  { id: 't1-turn',    kind: 'transition', frames: 'D10 → D11', title: 'Head turn',               units: 1.6, module: 't1-turn.js' },
   { id: 's2-science', kind: 'scene',      frames: 'D11',       title: 'The science behind',      units: 1.0, module: 's2-science.js', shows: [11], step: 0 },
   { id: 's3-scan',    kind: 'scene',      frames: 'D12',       title: 'Step 1 · Face scan',      units: 1.4, module: 's3-scan.js',    shows: [12], step: 1 },
   { id: 's4-roi',     kind: 'scene',      frames: 'D13',       title: 'Step 2 · ROI detection',  units: 1.0, module: 's4-roi.js',     shows: [13], step: 2 },

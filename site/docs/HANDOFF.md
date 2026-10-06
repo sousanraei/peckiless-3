@@ -169,3 +169,32 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - No site code changed in T4.
 
 **Next step → T5:** in a `t1-turn` module, add a `<canvas>` in a frame box over the S1 photos, preload `assets/seq/turn/manifest.json` + frames (decode with `createImageBitmap`), and map the t1-turn segment progress → frame index (draw cover-fit like the photo boxes). Show the canvas only inside t1-turn: at frame 0 it equals the D10 glow photo, at frame 89 it equals the D11 `front` photo, so swap layers there with no crossfade. Choreograph the chips sinking/fading (S1 icon loops currently run until S1's window end, mid t1-turn), the headline line-mask swap, and build the crossfade fallback for reduced motion / missing frames.
+
+---
+
+## T5 T1 transition: head turn (done, 2026-10-06)
+
+**Built**
+- `js/scenes/t1-turn.js` (config: `module: 't1-turn.js'`). `build()` makes the layer (canvas + fallback box); `link()` does the choreography.
+- `main.js`: new optional **second pass** — after every layer and the shared pills exist, `module.link?.(tl, ctx)` runs. Use it when a transition has to drive elements of the scene after it.
+- **Layering**: the turn layer sits under every layer (`z-index: -1`) and is visible for the whole t1-turn segment. S1 and S2 get `data-turn="on"` for that segment, which hides their background and `.photo` (scenes.css), so their copy/chips stay on top of the footage. Frame 0 = D10 glow photo, frame 89 = D11 photo, so both ends are plain swaps.
+- **Sequence scrubber**: full-stage canvas (DPR ≤ 2), drawn from a `gsap.ticker` check of the playhead (so `?still` seeks work too) only when the frame/fit/size changes. Frame = `sine.inOut` of segment progress 4–96%. Cover-fit = the S1 photo box's fit.js transform interpolated to S2's (identical on desktop; on mobile the face crop travels with the turn). Mobile repaints the same top fade as the photo boxes, with the layer colour going `--c-hero-top` → `--c-sky`.
+- **Preload**: manifest fetched at import; frames start after `window.load`, coarse-to-fine (every 16th → 8th → 4th → 2nd → all), 4 in flight, as `Image` elements (ready on `load`; `decode()` is only a hint — it never settles in a hidden tab). Not ImageBitmaps: 90 decoded frames would be ~420 MB.
+- **Choreography** (segment fractions): results title + chips sink and fade 0.02–0.3 (stagger from the last chip), tags fade 0.1–0.22, S1 headline lines + sub-headline line-mask wipe out upward 0.16–0.44, S2 lines wipe in from below 0.54–0.84 (the eyebrow is the same in both, so it never moves), `#pills` eases in from the right 0.7–0.95. The glow dots and the window → blue wall come from the footage.
+- **Fallback** (`data-mode="fallback"`): D10 → D11 crossfade with push-in (scale 1.07 at the face), blur (10px) and a soft-light sweep band, on the same scroll progress. Used when the manifest fails, when no frame within ±3 of the playhead has loaded yet, or with `?noseq`. The layer can switch between modes at any point.
+
+**Verified** (Browser pane)
+- Desktop 1440×1024: seams at the segment start (S1 photo → frame 0) and end (frame 89 → S2 photo) are invisible; mid-turn frames, wipes and pills as intended. All 90 frames load; no console errors.
+- Forward vs reverse sweep over 8 points (chips, S1/S2 lines, tags, pills, turn layer): identical states.
+- Native scroll (not `?still`) to mid-turn → timeline at the expected time, `seq` mode.
+- `?noseq`: fallback blur crossfade shows the whole way.
+- Mobile 375×812: seams clean, crop interpolates from the S1 face crop to the S2 one, top fade matches.
+- Screenshots: `docs/shots/t5-desktop-turn.jpg` (0 / 0.3 / 0.47 / 0.7 / 1.0), `docs/shots/t5-desktop-fallback.jpg`, `docs/shots/t5-mobile-375.jpg` (0 / 0.5 / 1.0).
+
+**Known issues / notes**
+- Reduced motion: the turn layer is hidden (`display: none`); the stacked end states show D10 then D11. T14 can reuse the fallback box for a fade-only version.
+- `#pills` entrance (x 120 → 0 + fade) now lives in t1-turn.js. T6 can replace it with its own slide-in; keep it inside the turn's tail or the row will pop in at the segment midpoint (that is where its layer becomes visible).
+- The `?ref=` overlay still switches D10 → D11 at the turn's midpoint.
+- Pane-hidden caveat still applies (rAF stops): use `?still` + `gsap.ticker.tick()`, or take a screenshot to wake the pane.
+
+**Next step → T6:** S2–S4 (D11–D13) in `s2-science.js`, `s3-scan.js`, `s4-roi.js`: pill active states (and optionally take over the pill entrance from t1-turn.js), headline reflow, the green scan line mapped 1:1 to scroll with a face-clipped trail, ROI boxes drawn on with DrawSVG.

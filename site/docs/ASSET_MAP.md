@@ -105,6 +105,8 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 | `#diagram` | s7-clean.js | S7, S8, T4 (beams → arrows), T5 | RGB diagram: inlined `rgb-d17.svg` + "RGB channels" label + `[data-id="arrow-tails"]` (off-canvas shaft extensions) |
 | `#calc-panel` > `.panel__body` | s7-clean.js | S7 (T10), S8 (T11), T5 | the calculation panel as HTML (the SVG's own `calc-panel` rect is hidden). Draw panel content into `.panel__body` |
 | `.layer--s1-hero .chip--<vital> .icon`, `.card--<vital> .icon` | s1-hero.js / s9-finale.js | T3, T12 | icon stacks; the glyph's moving part is `[data-id="body"]` |
+| `.layer--s1-hero`, `.layer--s2-science` `[data-turn]` | t1-turn.js | T1 turn (T5) | `on` during t1-turn: the layer drops its background and `.photo` (scenes.css) so the turn canvas, which sits under every layer (`z-index: -1`), shows through |
+| S1 `.results__title`, `.chip`, `.tags`, `.copy__h span`, `.copy__sub`; S2 `.copy__h span`, `.copy__sub`; `#pills` | s1-hero.js / s2-science.js / shared.js | T1 turn (T5) | t1-turn.js animates S1 out (chips sink, line-mask wipe up) and S2 in (line-mask wipe from below); it also eases `#pills` in (x + fade) at 70–95% of the turn |
 
 **Inlined SVG ids.** `js/lib/dom.js` `svg()` makes every id unique (`<id>--<n>`) and keeps the original as `data-id`, so query parts as `layer.querySelector('[data-id="roi-cheek-right"]')`, never `#roi-cheek-right`.
 
@@ -119,4 +121,5 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 - Every frame is the **whole 1440×1024 frame box** at 1280w (1 frame px = 0.889 image px), so draw it with the same fit as the photo boxes (desktop cover; mobile `focus` crop). No per-frame placement needed.
 - Frame 000 = `hero-a-glow` placed as D10 and frame 089 = `front` placed as D11 (mean diff < 2/255 against the site photos), so the canvas can take over from and hand back to the `<img>` boxes with no pop.
 - Source: `tools/seq/turn-source.mp4` (AI image-to-video, 752×560, 97 frames @24fps) generated from `tools/seq/user-first-d10.jpg` / `user-last-d11.jpg` (2000×1422 = frame space ×1.389; higher-res than `assets/img`). Rebuild with `python3 tools/seq/build_turn.py`.
+- Played by `js/scenes/t1-turn.js` (T5): a full-stage canvas, frame = eased segment progress (4–96%), drawn with the S1 photo box's fit → S2's fit (interpolated; differs only on mobile). Frames load after `window.load`, coarse-to-fine, 4 at a time; the nearest frame within ±3 is used, otherwise the crossfade fallback shows. `?noseq` forces the fallback.
 - Content timeline (frame index): phone lowers and leaves the frame 0–45, she blinks ~20, glow dots fade out ~30–55, window/plant background dissolves into the blue wall ~55–75, settled 75–89.

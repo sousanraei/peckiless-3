@@ -50,13 +50,13 @@ mm.add(
     const cleanups = [];
     const onCleanup = (fn) => cleanups.push(fn);
 
-    SCENES.forEach((scene, i) => {
+    const ctxs = SCENES.map((scene, i) => {
       const layer = document.createElement('section');
       layer.className = `layer layer--${scene.id}`;
       layer.dataset.scene = scene.id;
       layer.setAttribute('aria-label', scene.title);
       stage.append(layer);
-      modules[i].build(master, {
+      const ctx = {
         scene,
         layer,
         stage,
@@ -65,9 +65,14 @@ mm.add(
         duration: unitsOf(scene),
         start: master.labels[scene.id],
         onCleanup,
-      });
+      };
+      modules[i].build(master, ctx);
+      return ctx;
     });
     buildShared(stage, master, { isMobile, reduced });
+    // Optional second pass, once every layer exists: transitions that drive
+    // elements of their neighbouring scenes export link(tl, ctx).
+    modules.forEach((m, i) => m.link?.(master, ctxs[i]));
     fitAll(document);
     // Decode every stage image up front so hidden layers paint instantly when
     // they are cut to (they start visibility:hidden, which defers decoding).
