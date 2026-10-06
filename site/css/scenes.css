@@ -230,6 +230,38 @@
 }
 .panel__body { position: absolute; inset: 0; }
 
+/* S8 analysis drawing (s8-calc.js), panel-local px. Use fill-/stroke-opacity
+   here, not opacity: GSAP's autoAlpha owns opacity on the animated parts. */
+.calc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; font-family: var(--f-body); }
+.calc text { fill: var(--c-navy); font-size: 11px; font-variant-numeric: tabular-nums; }
+.calc .calc__title { font-size: 13px; font-weight: 650; letter-spacing: -0.1px; }
+.calc .calc__note, .calc .calc__tick { fill: #5d6f7a; font-size: 11px; }
+.calc .calc__ibi { fill: var(--c-magenta); fill-opacity: .8; font-size: 9.5px; }
+.calc .calc__val { fill: var(--c-navy); font-weight: 700; }
+.calc .calc__val--lg { font-size: 15px; fill: var(--c-magenta); }
+.calc .calc__formula { font-size: 12px; font-style: italic; fill: var(--c-ink-2); white-space: pre; }
+.calc .calc__big { font: 760 64px/1 var(--f-display); letter-spacing: -2px; fill: var(--c-navy); }
+.calc .calc__unit { font-size: 20px; font-weight: 650; letter-spacing: 0; fill: var(--c-magenta); }
+.calc .calc__f0-label { font-size: 12px; font-weight: 700; fill: var(--c-magenta); }
+.calc .calc__bandlabel { fill: var(--c-g); font-size: 10px; font-weight: 600; }
+.calc .calc__r { fill: var(--c-r); font-style: normal; font-weight: 700; font-size: 9px; baseline-shift: sub; }
+.calc .calc__b { fill: var(--c-b); font-style: normal; font-weight: 700; font-size: 9px; baseline-shift: sub; }
+.calc__axis line, .calc__mid { stroke: var(--c-line); stroke-width: 1; }
+.calc__bvp { fill: none; stroke: var(--c-g); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.calc__bvp-faint { fill: none; stroke: var(--c-g); stroke-width: 1; stroke-opacity: .3; }
+.calc__peaks circle, .calc__f0 circle, .calc__bars circle { fill: var(--c-magenta); stroke: #fff; stroke-width: 1.5; }
+.calc__band { fill: var(--c-teal); fill-opacity: .1; }
+.calc__psd { fill: none; stroke: var(--c-teal); stroke-width: 2; stroke-linejoin: round; }
+.calc__psd-area { fill: var(--c-teal); fill-opacity: .22; }
+.calc__f0-line { stroke: var(--c-magenta); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.calc__card { fill: #fff; stroke: var(--c-line); }
+.calc__bars line { stroke: var(--c-magenta); stroke-width: 2; stroke-linecap: round; stroke-opacity: .5; }
+.calc__bars circle { stroke-width: 0; }
+.calc__ch { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+.calc__ch--r { stroke: var(--c-r); }
+.calc__ch--b { stroke: var(--c-b); }
+.calc__env { fill: none; stroke: var(--c-magenta); stroke-width: 2.2; stroke-linecap: round; }
+
 /* ---------- S9 / D19 vital cards (card-local px) ---------- */
 .card {
   box-sizing: border-box;
@@ -480,4 +512,80 @@
   -webkit-mask-composite: source-in;
   mask-image: linear-gradient(to left, transparent, #000 var(--fe)), linear-gradient(to top, transparent, #000 var(--fe));
   mask-composite: intersect;
+}
+
+/* ---------- S7 Step 4 signal panel (D17, T10) ----------
+   Panel-local px inside .panel (686×583). The plot is an SVG in the same
+   coordinates; header, stage track and formula card are HTML. s7-clean.js
+   drives opacity/transform per stage. --ts scales text up where the panel is
+   fitted small (mobile). */
+.sp { position: absolute; inset: 0; color: var(--c-navy); font-family: var(--f-body); --ts: max(1, calc(0.6 / var(--fs, 1))); }
+.sp__eyebrow {
+  position: absolute; left: 28px; top: 22px; margin: 0;
+  font: 600 calc(11px * var(--ts)) / 1.2 var(--f-body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-muted);
+}
+.sp__titles { position: absolute; left: 28px; right: 28px; top: 42px; height: 34px; }
+.sp__title {
+  position: absolute; left: 0; top: 0; margin: 0; white-space: nowrap;
+  display: flex; align-items: center; gap: 10px;
+  font: 650 calc(22px * var(--ts)) / 30px var(--f-display); letter-spacing: -0.01em;
+}
+.sp__title span {
+  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--c-mint); color: var(--c-navy);
+  font: 700 12px/24px var(--f-body); text-align: center;
+}
+.sp__track {
+  position: absolute; left: 28px; right: 28px; top: 88px; margin: 0; padding: 0; list-style: none;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  font: 500 calc(11.5px * var(--ts)) / 1 var(--f-body); color: var(--c-muted);
+}
+.sp__track li { transition: color 0.25s; }
+.sp__track li.is-on { color: var(--c-navy); font-weight: 650; }
+.sp__bar { display: block; height: 3px; margin-bottom: 7px; border-radius: 2px; background: var(--c-line); overflow: hidden; }
+.sp__bar i { display: block; height: 100%; width: calc(var(--fill, 0) * 100%); background: var(--c-teal); }
+.sp__plot { position: absolute; left: 0; top: 0; width: 686px; height: 583px; overflow: visible; }
+.sp__axis { fill: none; stroke: #8f9ea7; stroke-width: 1.2; }
+.sp__grid { fill: none; stroke: var(--c-line); stroke-width: 1; stroke-dasharray: 3 4; }
+.sp__tick { font: 500 calc(11px * var(--ts)) var(--f-body); fill: #6b7c87; font-variant-numeric: tabular-nums; }
+.sp__tick--s { font-size: 9.5px; }
+.sp__unit { font: 500 calc(11.5px * var(--ts)) var(--f-body); fill: #4d606c; }
+.sp__legend { font: 600 calc(12px * var(--ts)) var(--f-body); fill: var(--c-navy); }
+.sp__key { stroke-width: 3; stroke-linecap: round; }
+.sp__line { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.sp__band { fill: rgb(239 68 68 / 0.07); stroke: rgb(239 68 68 / 0.35); stroke-dasharray: 4 3; }
+.sp__band--ok { fill: rgb(0 129 109 / 0.06); stroke: rgb(0 129 109 / 0.35); }
+.sp__ann { font: 600 calc(11px * var(--ts)) var(--f-body); fill: #c2410c; }
+.sp__ann--ok { fill: var(--c-teal-ink, #00695a); }
+.sp__inset { fill: rgb(255 255 255 / 0.9); stroke: var(--c-line); }
+.sp__pass { fill: rgb(68 179 162 / 0.16); }
+.sp__resp { fill: none; stroke: var(--c-teal); stroke-width: 1.8; }
+.sp__mark { stroke: #ef4444; stroke-width: 1.2; stroke-dasharray: 2 2; }
+.sp__mark--off { stroke: #8f9ea7; }
+.sp__peak { fill: #fff; stroke: var(--c-magenta); stroke-width: 2; }
+.sp__bracket { fill: none; stroke: var(--c-teal); stroke-width: 1.4; }
+.sp__formula {
+  position: absolute; left: 28px; right: 28px; top: 482px; height: 78px;
+  border: 1px solid var(--c-line); border-radius: 14px; background: #fff;
+}
+.sp__f { position: absolute; inset: 0; padding: 10px 18px 0; }
+.sp__math {
+  margin: 0; height: 40px; white-space: nowrap;
+  font: 400 calc(19px * var(--ts)) / 40px "STIX Two Text", "Cambria Math", Cambria, "Times New Roman", serif; color: var(--c-navy);
+}
+.sp__math sub { font-size: 0.66em; vertical-align: -0.35em; line-height: 0; }
+.sp__math .big { font-size: 1.35em; margin: 0 0.05em; }
+.sp__math .dim { color: var(--c-muted); font-size: 0.8em; }
+.fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; font-size: 0.82em; margin: 0 0.25em; line-height: 1.15; }
+.fr > span + span { border-top: 1px solid currentColor; padding-top: 1px; align-self: stretch; text-align: center; }
+.sp__note { margin: 4px 0 0; font: 500 calc(12px * var(--ts)) / 1.3 var(--f-body); color: #4d606c; }
+.rgb-pulse { stroke: #fff; stroke-width: 2.5; }
+.rgb-pulse--r { fill: var(--c-r); }
+.rgb-pulse--g { fill: var(--c-g); }
+.rgb-pulse--b { fill: var(--c-b); }
+@media (max-width: 899px) {
+  /* The panel is fitted at ~0.5×: bigger text, drop the eyebrow and notes. */
+  .sp { --ts: max(1, calc(0.75 / var(--fs, 1))); }
+  .sp__eyebrow, .sp__note { display: none; }
+  .sp__f { padding-top: 18px; }
 }
