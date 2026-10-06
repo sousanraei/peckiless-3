@@ -311,3 +311,14 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - Reduced motion: no transition (static D16 → D17).
 
 **Next step → T10:** S7 Step 4 (D17) in `s7-clean.js`: seeded synthetic rPPG data (1.2 Hz pulse, 0.25 Hz respiration, drift, motion noise), draw raw → detrend → POS → band-pass → BVP into `#calc-panel .panel__body` with axes, units and a formula, scroll-scrubbed across S7's 2.4 units (each stage readable for ~half a viewport). The diagram and panel are fully in from `t4-beams+0.9`.
+
+---
+
+## PR #1 review fixes (T8/T9, 2026-10-06)
+
+Checked in the desktop app's Browser pane (real Chrome, GSAP from cdnjs) at 1440×1024 and 375×812. Fixed:
+- **Mobile skin rise started on screen**: `t3-skin.js` measured `--drop` in `link()`, before fit.js places the frame boxes, and again only on resize. On a fresh 375×812 load it was 395px instead of 607px, so the skin began its rise about 195px above the bottom edge. It now re-measures on the next frame, once the fits exist.
+- **Forward vs reverse mismatch**: the D15 headline lines kept `clip-path: none` going forward but `inset(-30% -4%)` after reversing past the wipe-out. They now get the open clip up front (same fix T7 uses for S4's sub-headline).
+- **`rx: Expected length, "NaN"` console error** (pre-existing, from `t2-zoom.js`): render is skipped while a fit scale is 0 (a zero-size stage at boot); same guard on the `--drop` measure.
+
+Verified after the fixes: no console errors, no failed requests; forward vs reverse identical at 92 points from s4-roi+0.3 to s7-clean+0.6 (311 elements, pulses excluded); pulses move on the vessels; mobile skin now starts below the stage (top 832px on an 812px stage).

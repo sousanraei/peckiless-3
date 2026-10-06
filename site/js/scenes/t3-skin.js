@@ -49,6 +49,9 @@ export function link(tl, ctx) {
 
   // ---------- Copy ----------
   const head15 = [...s5.querySelectorAll('.copy--d15 .copy__h span')];
+  // These lines were never wiped in; give them the open clip the wipe starts
+  // from, so forward and reverse scrubs leave identical styles.
+  gsap.set(head15, { clipPath: 'inset(-30% -4% -30% -4%)' });
   tl.fromTo(head15, { clipPath: 'inset(-30% -4% -30% -4%)', y: 0 }, {
     clipPath: 'inset(-30% -4% 130% -4%)', y: -28, duration: 0.2 * d, stagger: 0.03 * d,
     ease: 'power2.in', immediateRender: false,
@@ -131,10 +134,13 @@ export function link(tl, ctx) {
   // from the skin's top edge to just below the stage on the current fit.
   const measure = () => {
     const f = fitOf(photo6);
+    if (!(f.s > 0)) return; // not laid out yet (zero-size stage)
     const drop = (stage.clientHeight - (f.y + SKIN_TOP * f.s)) / f.s + 40;
     photo6.style.setProperty('--drop', `${Math.max(0, drop).toFixed(1)}px`);
   };
+  // link() runs before fit.js places the frame boxes: measure again once it has.
   measure();
+  requestAnimationFrame(measure);
   const onResize = () => requestAnimationFrame(measure);
   window.addEventListener('resize', onResize);
   ctx.onCleanup(() => window.removeEventListener('resize', onResize));
