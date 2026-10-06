@@ -15,7 +15,7 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T7 | Zoom + pixel sampling (D13→D15) | done |
 | T8 | Into the skin + vessel signals (D15→D16) | done |
 | T9 | Follow the light beams (D16→D17) | done |
-| T10 | Scientific panel, Step 4 (D17) | todo |
+| T10 | Scientific panel, Step 4 (D17) | done |
 | T11 | Calculate, Step 5 (D18) | todo |
 | T12 | Wave → vitals + finale (D18→D19) | todo |
 | T13 | Mobile choreography pass | todo |

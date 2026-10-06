@@ -311,3 +311,43 @@ Newest entry at the bottom. Read the latest entry before starting; append yours 
 - Reduced motion: no transition (static D16 → D17).
 
 **Next step → T10:** S7 Step 4 (D17) in `s7-clean.js`: seeded synthetic rPPG data (1.2 Hz pulse, 0.25 Hz respiration, drift, motion noise), draw raw → detrend → POS → band-pass → BVP into `#calc-panel .panel__body` with axes, units and a formula, scroll-scrubbed across S7's 2.4 units (each stage readable for ~half a viewport). The diagram and panel are fully in from `t4-beams+0.9`.
+
+---
+
+## T10 S7 Step 4: signal-conditioning panel (done, 2026-10-06)
+
+**Built**
+- `js/lib/rppg.js`: seeded synthetic rPPG data and the Step 4 chain, pure functions (no DOM; runs in node too). 30 fps, 16 s generated, 3–13 s shown (`VIEW`, clear of the filter edges). Model per channel: `DC · (1 + AC·pulse + resp + drift + motion) + noise`.
+  - pulse: 1.2 Hz mean (72 BPM) with ±0.05 Hz respiratory sinus arrhythmia, 2nd/3rd harmonics, AC/DC G 1.0 % > B 0.45 % > R 0.25 %
+  - respiration: **13/min (0.217 Hz)**, as baseline wander plus pulse-amplitude modulation. PLAN's T10 says 0.25 Hz, but T11's acceptance needs 13/min, so I went with 13/min.
+  - drift: a slow illumination change common to all channels, plus a small white-balance creep per channel
+  - motion: two head movements (6.4 s, 11.1 s), mostly a colour-neutral intensity change
+  - chain: normalise + cubic detrend → POS (Wang 2017, 1.6 s windows, overlap-add) → 2nd-order Butterworth high-pass 0.7 Hz + low-pass 4 Hz, run forward–backward (zero phase) → z-scored BVP
+  - checked in node: BVP vs true pulse r = 0.994; detected peaks give a mean IBI of 0.833 s = 72.0 BPM; the band-passed spectrum peaks at 1.20 Hz
+  - SpO₂ for T11: ratio of ratios R/B = 0.0025/0.0045 = 0.556, and `SPO2_CAL` [110, 25] → 96.1 %
+- `js/scenes/s7-clean.js`: the panel (`.sp` in `#calc-panel .panel__body`) has an HTML header (eyebrow, stage title, 5-step track), an SVG plot (axes, t 0–10 s) and an HTML formula card. **Three polylines (301 points each) carry all five stages.** For each stage, every line gets data, colour, width and opacity (`LINES`); the lines morph between stages and are never swapped:
+  - line 0: R lane → R̃ → X → S ghost → gone
+  - line 1: G lane → G̃ → S → S band-pass → BVP
+  - line 2: B lane → B̃ → Y → gone
+  - Ticks, units, legend, annotations and formulas are per-stage groups. The outgoing group fades over the first half of a morph and the incoming one over the second, so text never overlaps. Annotations: the motion band (raw/detrend) turns into "cancelled" (POS); the |H(f)| inset (top right of the header) marks the 0.7–4 Hz band, HR and respiration; BVP shows peak markers and one period bracket.
+- **One scrubbed state** `f` 0 → 1 over S7, and everything is rendered from `f` (like t4-beams). S7 fractions:
+  - 0–0.1: cells light up row by row (scale + brightness pop)
+  - 0.02–0.13: a dot of each channel's colour runs along its curve into the panel
+  - 0.06–0.17: raw traces draw on left → right (clip)
+  - stage morphs at 0.27–0.33, 0.45–0.51, 0.63–0.69 and 0.81–0.87
+- `js/config.js`: S7 goes from 2.4 to **3.0 units**, so each stage reads for ≥ 0.54 viewport of scroll (the BVP stage then holds through all of S8).
+- `css/scenes.css`: "S7 Step 4 signal panel" block. `--ts` scales the text up where the panel is fitted small. Mobile: the diagram is moved to `0.02 0.27 0.96 0.2` and the panel to `0.03 0.48 0.94 0.38` (bigger), and the eyebrow and notes are hidden.
+
+**Verified** (headless Chromium via Playwright; GSAP from the npm package because cdnjs is blocked here, as in T8/T9)
+- Forward vs reverse sweep, 121 points from t4-beams+0.5 to s8-calc+0.5, covering every line's `d`/stroke/width/opacity, stage groups, titles, formulas, track, the clip, pulse dots and cells: identical at 1440×1024 and 375×812. Jumping from S8 back to t4 restores the empty-panel state. S7's start seam is identical either side.
+- Native scroll to `s7-clean+0.5` (no `?still`) → POS stage shown. Reduced motion: static BVP end state. No console errors.
+- Screenshots: `docs/shots/t10-desktop.jpg` (s7 0.08 / 0.2 / 0.39 / 0.57 / 0.75 / 0.95), `docs/shots/t10-mobile-375.jpg` (s7 0.08 / 0.2 / 0.57 / 0.95).
+
+**Known issues / notes**
+- I could not view the reference artifact (it's from another organisation and needs the user's approval to open), so the panel follows the site's own palette and type.
+- Mobile: legend items sit a little tight (their spacing is computed for desktop text size). T13 can measure them with `getComputedTextLength`.
+- The formula card uses system serif math fonts (STIX Two / Cambria / Times), not a web font.
+- T8 and T9 are still only on unmerged branches (`claude/t8-implementation-1zwuiu`, `claude/brave-johnson-5b1qep`). This branch, `claude/lucid-fermat-s5pcrr`, contains T8 + T9 + T10.
+- Matching frame: D17 is the panel before stage 1 (`t4-beams+0.95`); the panel content is new (D17's rectangle is empty).
+
+**Next step → T11:** S8 Step 5 (D18) in `s8-calc.js`. Import `generate()` from `js/lib/rppg.js` (same seed → same data) and take over `#calc-panel .sp`: the BVP stage is on screen from s7 0.87 through S8. Morph line 1 (BVP) or fade the stage-5 chrome (`.sp__stage[data-i="4"]`, `.sp__title[data-i="4"]`, `.sp__f[data-i="4"]`) into the analysis views: Welch PSD peak 1.2 Hz = 72 BPM, peaks, HRV strip, SpO₂ ratio of ratios (`AC`, `SPO2_CAL` → 96 %), respiration envelope (13/min).
