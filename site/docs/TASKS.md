@@ -22,3 +22,4 @@ Status: `todo` · `in-progress` · `done` · `blocked`.
 | T14 | Reduced motion + accessibility | done |
 | T15 | Performance + QA | done |
 | T16 | Publish (Artifact) + README | done |
+| R1 | Revisions: new icons + loops, headline descenders, new D19 | done |

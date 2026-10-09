@@ -1,26 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="292 849 58 60" fill="none">
-  <title>glucose icon glyph</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="298 849 52 60" fill="none">
+  <title>glucose icon</title>
   <defs>
-    <radialGradient id="ic-glucose-paint5_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(318.15 867.018) scale(31.2 32.6857)">
-      <stop stop-color="#FFF3FB" />
-      <stop offset="0.45" stop-color="#E4B9DD" />
-      <stop offset="1" stop-color="#9152BC" />
+    <filter id="ic-glucose-filter1_f" x="404.357" y="46.3571" width="48.2857" height="50.1426" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+      <feGaussianBlur stdDeviation="2.32143" result="effect1_foregroundBlur_1498_5261" />
+    </filter>
+    <radialGradient id="ic-glucose-paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(422.65 62.44) scale(31.2 32.6857)">
+      <stop stop-color="#FFFDF3" />
+      <stop offset="0.45" stop-color="#F0D772" />
+      <stop offset="1" stop-color="#8F4700" />
     </radialGradient>
+    <filter id="ic-glucose-filter0_f" x="411.786" y="90.0002" width="33.4285" height="13.0001" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+      <feGaussianBlur stdDeviation="2.32143" result="effect1_foregroundBlur_1498_5261" />
+    </filter>
   </defs>
-  <g id="body" style="transform-box: fill-box; transform-origin: 50% 50%">
-    <path d="M324 855.578L340.714 864.864C342.571 865.792 343.5 867.65 343.5 869.507V882.507C343.5 884.364 342.571 886.221 340.714 887.15L324 896.435L307.286 887.15C305.429 886.221 304.5 884.364 304.5 882.507V869.507C304.5 867.65 305.429 865.792 307.286 864.864L324 855.578Z" fill="url(#ic-glucose-paint5_radial)" />
-    <g opacity="0.6" style="mix-blend-mode:overlay">
-      <path d="M324 855.578L340.714 864.864C342.571 865.792 343.5 867.65 343.5 869.507V882.507C343.5 884.364 342.571 886.221 340.714 887.15L324 896.435L307.286 887.15C305.429 886.221 304.5 884.364 304.5 882.507V869.507C304.5 867.65 305.429 865.792 307.286 864.864L324 855.578Z" fill="white" />
+  <g transform="translate(-104.5 804.58)">
+    <g id="shadow">
+      <g opacity="0.314033" filter="url(#ic-glucose-filter0_f)">
+        <path d="M428.5 98.3574C435.167 98.3574 440.571 97.5259 440.571 96.5002C440.571 95.4745 435.167 94.6431 428.5 94.6431C421.833 94.6431 416.428 95.4745 416.428 96.5002C416.428 97.5259 421.833 98.3574 428.5 98.3574Z" fill="#F59E0B" />
+      </g>
     </g>
-    <path opacity="0.55" d="M318.482 867.895C320.573 866.92 321.829 865.187 321.288 864.025C320.746 862.863 318.611 862.712 316.519 863.687C314.428 864.662 313.172 866.395 313.713 867.557C314.255 868.719 316.39 868.87 318.482 867.895Z" fill="white" />
-  </g>
-  <g id="sparkles">
-    <path opacity="0.9" d="M295.41 861.006C296.405 860.758 297.01 859.75 296.762 858.755C296.514 857.76 295.506 857.154 294.511 857.402C293.516 857.65 292.91 858.658 293.158 859.654C293.406 860.649 294.414 861.254 295.41 861.006Z" fill="#BEA1D9" />
-    <path opacity="0.9" d="M295.251 860.379C295.898 860.217 296.292 859.562 296.131 858.915C295.969 858.268 295.314 857.875 294.667 858.036C294.02 858.197 293.627 858.853 293.788 859.499C293.949 860.146 294.605 860.54 295.251 860.379Z" fill="#BEA1D9" />
-    <path opacity="0.9" d="M295.321 860.649C296.117 860.45 296.601 859.644 296.403 858.848C296.204 858.052 295.398 857.567 294.602 857.766C293.806 857.964 293.321 858.77 293.52 859.567C293.718 860.363 294.524 860.847 295.321 860.649Z" fill="#BEA1D9" />
-    <g opacity="0.499251">
-      <path d="M341.643 855.575L343.5 852.789ZM344.428 859.289L347.214 857.896Z" fill="black" />
-      <path d="M341.643 855.575L343.5 852.789M344.428 859.289L347.214 857.896" stroke="#BEA1D9" stroke-width="1.20714" stroke-linecap="round" />
+    <g id="body">
+      <g id="core">
+        <g opacity="0.55" filter="url(#ic-glucose-filter1_f)">
+          <path d="M428.5 51L445.214 60.2857C447.071 61.2143 448 63.0714 448 64.9286V77.9286C448 79.7857 447.071 81.6429 445.214 82.5714L428.5 91.8571L411.786 82.5714C409.929 81.6429 409 79.7857 409 77.9286V64.9286C409 63.0714 409.929 61.2143 411.786 60.2857L428.5 51Z" fill="#ED7D1C" />
+        </g>
+        <path d="M428.5 51L445.214 60.2857C447.071 61.2143 448 63.0714 448 64.9286V77.9286C448 79.7857 447.071 81.6429 445.214 82.5714L428.5 91.8571L411.786 82.5714C409.929 81.6429 409 79.7857 409 77.9286V64.9286C409 63.0714 409.929 61.2143 411.786 60.2857L428.5 51Z" fill="url(#ic-glucose-paint0_radial)" />
+        <g opacity="0.6" style="mix-blend-mode:overlay">
+          <path d="M428.5 51L445.214 60.2857C447.071 61.2143 448 63.0714 448 64.9286V77.9286C448 79.7857 447.071 81.6429 445.214 82.5714L428.5 91.8571L411.786 82.5714C409.929 81.6429 409 79.7857 409 77.9286V64.9286C409 63.0714 409.929 61.2143 411.786 60.2857L428.5 51Z" fill="white" />
+        </g>
+      </g>
+      <g id="hl">
+        <path opacity="0.55" d="M422.981 63.3184C425.073 62.3431 426.329 60.6105 425.787 59.4485C425.245 58.2865 423.111 58.1352 421.019 59.1105C418.927 60.0858 417.671 61.8184 418.213 62.9804C418.755 64.1424 420.89 64.2937 422.981 63.3184Z" fill="white" />
+      </g>
     </g>
   </g>
 </svg>

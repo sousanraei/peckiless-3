@@ -42,7 +42,6 @@ All verified pixel-exact against the source frames (mean diff 0.0 where they pai
 | `swatches-d15.svg` | D15 | `#swatches > .swatch#sw-{row}-{col}` with `data-row`/`data-col` | 14 cols × 8 rows, cell 38.86×30.75 rx 12, origin 675,326, step 46.36/38.38. Colours in `ASSETS.vectors['swatches-d15'].colors[row][col]` |
 | `beams-d16.svg` | D16 | groups `#beam-in`, `#beam-specular`, `#beam-out`, `#tissue-in`, `#tissue-out`, each with `#<name>-line` and `#<name>-head` (stroke `--c-orange` 10, round caps; tissue paths dashed `31 20`) | see the light story below |
 | `rgb-d17.svg` | D17 (D18 identical) | `#arrows > #arrow-0/1` (outlined fills), `#arrow-centerlines` (hidden stroked twins `#arrow-0/1-centerline`, width 9.1, for the T9 morph), `#curves > #curve-r/g/b`, `#rgb-box`, `#cells > #cells-r/g/b > #cell-{r,g,b}-{0..6}`, `#calc-panel` | RGB box 356,575 224×112 · cells 24×24 step 28 · arrows at y 587.79 / 674.36 · panel 689,178 686×583 rx 26 |
-| `connectors-d19.svg` | D19 | `#connector-0..3` (`--c-magenta`) | card → body lines |
 
 **Vessel centrelines (T8)**: `js/scenes/vessels-paths.js` holds 10 paths traced over `skin.webp` by `tools/vessels/trace.py` (hand waypoints snapped to the centre of the red/blue vessel mask, smoothed, Catmull-Rom → cubic; frame px). 5 arteries (`a-*`: trunk left → right, branches from the trunk up) and 5 veins (`v-*`: trunk right → left, branches down to the trunk); each path runs in its pulse direction. 95–100% of samples lie inside their vessel.
 
@@ -52,32 +51,30 @@ All verified pixel-exact against the source frames (mean diff 0.0 where they pai
 `logo.svg`: three `--c-mint` paths, box **115,46 32×50** (nav, every frame).
 
 ### Vital icons (`assets/svg/icons/`)
-From D10. Each icon has three files that share one box, so stacking them at the same position and size rebuilds the original:
+Drawings from `../health icons.svg` (Oct 2026 set: no orbit rings or sparkles), placed where D10's icons sat (same shapes, so each is a pure offset). One file per icon, `<name>-glyph.svg`, viewBox = its box in D10 frame px:
 
-| Layer | File | Moves? |
+| Group | Contents | Moves? |
 |---|---|---|
-| shadow | `<name>-shadow.webp`: blurred ground shadow + thin orbit ring, rasterised at 4× | stationary |
-| glow | `<name>-glow.webp`: blurred halo (σ 2.32), rasterised at 4× | stationary, or follows the glyph softly |
-| glyph | `<name>-glyph.svg`: `#body` (shape, overlay sheen, highlights; `transform-origin` is its own centre) and `#sparkles` (the small dots and ticks around it) | **`#body` is what the loops animate**; `#sparkles` can twinkle |
+| `#shadow` | blurred ground ellipse (inline `feGaussianBlur`, σ 2.32) | stationary |
+| `#body > #core` | blurred glow + radial-gradient shape + white overlay sheen (+ the lungs' stem) | heart, BP, lungs: scaled with `#body`; O₂, glucose: `#core` spins |
+| `#body > #hl` | specular highlight(s) | with `#body`; stays put while `#core` spins |
 
-| Name | Box in D10 | Box offset inside its chip | D19 box (scale 0.79–0.80) | Accent |
+| Name | Box in D10 | Box offset inside its chip | D19 box origin (scale 1, same size) | Glow colour |
 |---|---|---|---|---|
-| `heart-rate` | 251,661 58×58 | 170.5,14.5 | 1311.26,520.26 46.01×46.01 | `#22BFA6` |
-| `blood-oxygen` | 564,659 59×58 | 209,15.5 | 576.97,597.62 47.32×46.52 | `#4DB6E6` |
-| `blood-pressure` | 314,752 57×59 | 233.5,10.5 | 1034.86,744.81 45.71×47.32 | `#D44A9B` |
-| `breathing-rate` | 648,753 57×58 | 222.5,11.5 | 742.85,429.6 45.71×46.51 | `#9152BC` |
-| `glucose` | 292,849 58×60 | 211.5,9.5 | 626.85,764.01 46.51×48.12 | `#BEA1D9` |
+| `heart-rate` | 258,665 51×54 | 177.5,18.5 | 1248.85,518.75 | `#0D834F` |
+| `blood-oxygen` | 569,662 54×55 | 214.0,18.5 | 573.61,595.41 | `#8EE6F2` |
+| `blood-pressure` | 321,752 50×59 | 240.5,10.5 | 1328.59,682.13 | `#F28CC0` |
+| `breathing-rate` | 656,754 48×57 | 230.5,12.5 | 743.95,430.99 | `#B9A6F0` |
+| `glucose` | 298,849 52×60 | 217.5,9.5 | 624.66,763.06 | `#ED7D1C` |
 
-D19 draws the same icons at 0.8×, and the D10 assets placed at the D19 box match it (glyph mean diff < 1/255).
-
-### D19 card charts (card-local: viewBox `0 0 w h` = the card, origin at its corner)
+### D19 card charts (card-local: viewBox `0 0 w h` = the card, origin at its corner; Oct 2026 D19: cards `#CDF4F3` with a `#CEFAF3` stroke, no connector lines)
 | File | Card (frame px) | Chart box inside card | Content |
 |---|---|---|---|
-| `chart-breathing-rate.svg` | 513.4,420.4 289.2×151.2 | 15.21,67.37 258.77×32.08 | sine wave (long path, clipped, so it can scroll) |
-| `chart-heart-rate.svg` | 1083.4,511.4 287.2×149.15 | 16.26,65.25 254.67×31.73 | ECG-like trace (long path, clipped) |
+| `chart-breathing-rate.svg` | 513.4,420.4 289.2×151.2 | 15.21,68.38 258.77×32.08 | sine wave (long path, clipped, so it can scroll) |
+| `chart-heart-rate.svg` | 1083.4,511.4 226.21×149.21 | 11.73,66.81 202.75×24.75 | ECG-like trace (x 1096–1297) |
 | `chart-blood-oxygen.svg` | 346.4,588.4 290.32×150.77 | 16.44,66.09 254.23×32.08 | step chart, 17 segments |
-| `chart-glucose.svg` | 396.4,756.4 290.2×150.77 | 17.99,55.75 254.23×36.89 | 9 bars |
-| `chart-blood-pressure.svg` | 804.4,736.4 290.2×151.2 | 15.58,74.58 259.04×32.88 | systolic/diastolic bars (white track + pink fill) |
+| `chart-glucose.svg` | 396.4,756.4 290.2×154.71 | 18.85,58.9 254.23×36.89 | 9 bars |
+| `chart-blood-pressure.svg` | 1121.4,675.4 267.2×151.2 | 16.6,75.9 234.0×32.43 | systolic/diastolic bars (white track + pink fill), x 1140.4 → 1328.1 / 1259.1 |
 
 Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live HTML (T2).
 
@@ -128,7 +125,7 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 | `.layer--t4-beams` > `.fly__bg`, `.fly__svg` > `.fly__beam[data-beam="0|1"]` (`.fly__shaft`, `.fly__head`) | t4-beams.js | T4 beams (T9) | the two persistent beams in screen px (0 = specular → `arrow-0`, 1 = beam-out → `arrow-1`): 2-point shaft + 3-point chevron (arm below the shaft, tip, arm above). At t4 0 they equal S6's beams; at 1 the D17 arrow centrelines (shaft 9.1, arms 8). `.fly__bg` paints white from the segment midpoint (S6 hidden) |
 | S7 `#diagram` `[data-id="arrows|rgb-box|cells|curves"]`, `.rgb-label`; `#calc-panel` | s7-clean.js | T4 beams (T9), S7 (T10) | t4-beams.js: box draws on 0.56–0.86, cells/curves/label/panel fade in 0.62–0.9 (T10 may restyle the cells/curves entrance inside S7), real arrows fade in on top of the moving beams 0.9–0.97 |
 | `.layer--t5-vitals` > `.vitals__svg` > `path` ×14 | t5-vitals.js | T5 vitals (T12) | morph polylines in stage px (5 lines + 9 glucose bars). The layer is moved to the end of `#stage` so they fly over photo E and the cards. At t5 0 each equals its S8 source (`.calc__bvp`, `.calc__env`, `.calc__ch--r`, `.calc__psd`, `.calc__ch--b`, 9 of `.calc__bars line`, which hide for the segment); at its landing each equals the card chart, then crossfades into `.card__chart` |
-| S7 `#diagram`, `.panel-box`; S8 `.copy`; `#pills`; S9 (`--bga`, `.photo`, `.copy`, `.card`, `.card__chart`, `.icon__glyph`, `.connectors`) | s7/s8/s9, shared.js | T5 vitals (T12) | t5-vitals.js: diagram + panel fade 0.04–0.3, S8 headline wipes out, pills fade; S9 shows from t5 0 with its background (`--bga`, a colour-mix alpha in scenes.css) and photo dissolving in 0.12–0.5, headline wipes in from 0.5, cards settle one by one before their charts land, connectors 0.8–0.95, icon loops from 0.7 to the end. `.calc__bars line` carry `data-y2` (their drawn end; S8 animates `y2`) |
+| S7 `#diagram`, `.panel-box`; S8 `.copy`; `#pills`; S9 (`--bga`, `.photo`, `.copy`, `.card`, `.card__chart`, `.icon__glyph`) | s7/s8/s9, shared.js | T5 vitals (T12) | t5-vitals.js: diagram + panel fade 0.04–0.3, S8 headline wipes out, pills fade; S9 shows from t5 0 with its background (`--bga`, a colour-mix alpha in scenes.css) and photo dissolving in 0.12–0.5, headline wipes in from 0.5, cards settle one by one before their charts land, icon loops from 0.7 to the end. `.calc__bars line` carry `data-y2` (their drawn end; S8 animates `y2`) |
 | S9 `.cta--finale` | s9-finale.js | S9 (T12) | the D9 Contact us CTA at its D9 spot, fades in over S9 0–0.25 (not in D19) |
 | S4 `.copy__h span`, `.copy__sub`; S5 `.copy--d14` lines; S5 `.copy--d14 .copy__h`/`.copy__sub` (`--k`, `--shift`); S5 `.swatch` | s4-roi.js / s5-pixels.js | T2 zoom, S5 (T7) | S4 copy wipes out and the D14 copy wipes in during the zoom; in S5 the D14 headline glides (relative `top`) into its D15 slot while the sub wipes out/in at its D15 slot, then cuts to the identical `.copy--d15`. Swatches pop in on a diagonal grid stagger |
 
@@ -140,7 +137,7 @@ Cards: fill `--c-card`, stroke `--c-teal` 0.8, radius 18.85. Card text is live H
 - **Static schedule** (`js/lib/static.js`): each scene is held for its segment plus half of each neighbouring transition; `shows` in config.js says which frame(s) it shows (two → hard switch at the midpoint). `frameAt(tl, t)` returns the frame on screen.
 - **Line-mask wipe** (`js/lib/wipe.js`, T5/T6): `headLines(layer, withSub)`, `wipeOut(tl, els, at, {duration, stagger})`, `wipeIn(...)` — the headline swap used by the turn, S2 → S3, S3 → S4, the zoom and S5.
 - **Ambient loops** (`js/lib/ambient.js`, T3): `ambient(tl, ctx, from, to, loops)` plays paused, time-based tweens only while the master playhead is inside `[from, to]` (so they follow the scrubbed layer visibility, and work with `?still`). Skipped under reduced motion. It registers its ticker removal with `ctx.onCleanup(fn)` (main.js runs those when the matchMedia context reverts).
-- **Icon loops** (`js/lib/loops.js`, T3 → shared in T12): `iconLoops(iconEls)` returns the paused glyph loops for `.icon.icon--<vital>` elements (heart 72 bpm, O₂ spin, BP squash, lungs 13/min, glucose hex); used by S1's chips and the D19 cards.
+- **Icon loops** (`js/lib/loops.js`, T3 → shared in T12): `iconLoops(iconEls)` returns the paused glyph loops for `.icon.icon--<vital>` elements (timings from the reference film: heart double beat 1.05 s, O₂ spin 5 s, glucose spin 7 s, BP squash on its base 1.8 s, lungs breathe from the top 3.6 s); used by S1's chips and the D19 cards.
 
 ## Image sequences (`assets/seq/`)
 **`assets/seq/turn/`** (T4): head turn D10 → D11, `turn-000.webp` … `turn-089.webp` (90 frames, 1280×910, ~3.0 MB) + `manifest.json` (`count`, `pattern`, `px`, `frame`, `from`, `to`).

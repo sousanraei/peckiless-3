@@ -1,26 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="314 752 57 59" fill="none">
-  <title>blood-pressure icon glyph</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="321 752 50 59" fill="none">
+  <title>blood-pressure icon</title>
   <defs>
-    <radialGradient id="ic-blood-pressure-paint3_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(340.428 769.42) scale(29.7143 31.2)">
+    <filter id="ic-blood-pressure-filter3_f" x="224.357" y="46.3571" width="46.4288" height="48.2857" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+      <feGaussianBlur stdDeviation="2.32143" result="effect1_foregroundBlur_1498_5261" />
+    </filter>
+    <radialGradient id="ic-blood-pressure-paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(242 61.92) scale(29.7143 31.2)">
       <stop stop-color="#FFEAF5" />
       <stop offset="0.45" stop-color="#F28CC0" />
       <stop offset="1" stop-color="#C2327F" />
     </radialGradient>
+    <filter id="ic-blood-pressure-filter2_f" x="230.857" y="89.0715" width="33.4288" height="13.0001" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+      <feGaussianBlur stdDeviation="2.32143" result="effect1_foregroundBlur_1498_5261" />
+    </filter>
   </defs>
-  <g id="body" style="transform-box: fill-box; transform-origin: 50% 50%">
-    <path d="M345.999 758.5C357.142 758.5 364.571 765 364.571 776.143C364.571 788.214 356.213 797.5 345.999 797.5C335.785 797.5 327.428 788.214 327.428 776.143C327.428 765 334.856 758.5 345.999 758.5Z" fill="url(#ic-blood-pressure-paint3_radial)" />
-    <g opacity="0.6" style="mix-blend-mode:overlay">
-      <path d="M345.999 758.5C357.142 758.5 364.571 765 364.571 776.143C364.571 788.214 356.213 797.5 345.999 797.5C335.785 797.5 327.428 788.214 327.428 776.143C327.428 765 334.856 758.5 345.999 758.5Z" fill="white" />
+  <g transform="translate(98.43 707.5)">
+    <g id="shadow">
+      <g opacity="0.314033" filter="url(#ic-blood-pressure-filter2_f)">
+        <path d="M247.571 97.4286C254.238 97.4286 259.643 96.5972 259.643 95.5715C259.643 94.5458 254.238 93.7144 247.571 93.7144C240.905 93.7144 235.5 94.5458 235.5 95.5715C235.5 96.5972 240.905 97.4286 247.571 97.4286Z" fill="#C2327F" />
+      </g>
     </g>
-    <path opacity="0.55" d="M340.48 769.887C342.571 768.912 343.828 767.179 343.286 766.017C342.744 764.855 340.609 764.704 338.518 765.679C336.426 766.655 335.17 768.387 335.712 769.549C336.253 770.711 338.388 770.863 340.48 769.887Z" fill="white" />
-  </g>
-  <g id="sparkles">
-    <path opacity="0.9" d="M317.41 763.006C318.405 762.758 319.01 761.75 318.762 760.755C318.514 759.76 317.506 759.154 316.511 759.402C315.516 759.65 314.91 760.658 315.158 761.654C315.406 762.649 316.414 763.254 317.41 763.006Z" fill="#D44A9B" />
-    <path opacity="0.9" d="M317.251 762.379C317.898 762.217 318.292 761.562 318.131 760.915C317.969 760.268 317.314 759.875 316.667 760.036C316.02 760.197 315.627 760.853 315.788 761.499C315.949 762.146 316.605 762.54 317.251 762.379Z" fill="#D44A9B" />
-    <path opacity="0.9" d="M317.321 762.649C318.117 762.45 318.601 761.644 318.403 760.848C318.204 760.052 317.398 759.567 316.602 759.766C315.806 759.964 315.321 760.77 315.52 761.567C315.718 762.363 316.524 762.847 317.321 762.649Z" fill="#D44A9B" />
-    <g opacity="0.499251">
-      <path d="M363.643 757.575L365.5 754.789ZM366.428 761.289L369.214 759.896Z" fill="black" />
-      <path d="M363.643 757.575L365.5 754.789M366.428 761.289L369.214 759.896" stroke="#D44A9B" stroke-width="1.20714" stroke-linecap="round" />
+    <g id="body">
+      <g id="core">
+        <g opacity="0.55" filter="url(#ic-blood-pressure-filter3_f)">
+          <path d="M247.571 51C258.714 51 266.143 57.5 266.143 68.6429C266.143 80.7143 257.786 90 247.571 90C237.357 90 229 80.7143 229 68.6429C229 57.5 236.429 51 247.571 51Z" fill="#F28CC0" />
+        </g>
+        <path d="M247.571 51C258.714 51 266.143 57.5 266.143 68.6429C266.143 80.7143 257.786 90 247.571 90C237.357 90 229 80.7143 229 68.6429C229 57.5 236.429 51 247.571 51Z" fill="url(#ic-blood-pressure-paint1_radial)" />
+        <g opacity="0.6" style="mix-blend-mode:overlay">
+          <path d="M247.571 51C258.714 51 266.143 57.5 266.143 68.6429C266.143 80.7143 257.786 90 247.571 90C237.357 90 229 80.7143 229 68.6429C229 57.5 236.429 51 247.571 51Z" fill="white" />
+        </g>
+      </g>
+      <g id="hl">
+        <path opacity="0.55" d="M242.052 62.3897C244.144 61.4144 245.4 59.6818 244.858 58.5198C244.317 57.3578 242.182 57.2065 240.09 58.1818C237.999 59.1571 236.742 60.8897 237.284 62.0517C237.826 63.2137 239.961 63.365 242.052 62.3897Z" fill="white" />
+      </g>
     </g>
   </g>
 </svg>

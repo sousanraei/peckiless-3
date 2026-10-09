@@ -649,3 +649,22 @@ Built directly on `main`.
 - Owner should open the link once while signed in to confirm on real hardware (and run `?debug&autoscroll` locally in a visible tab, per T15).
 
 **Next step:** none in the plan. Polish requests from stakeholder review → republish the same page file to the same URL (see README).
+
+## R1 Revisions after review (done, 2026-10-09)
+
+Built directly on `main`. Three requested edits.
+
+**1. New vital icons + reference loops.** Drawings now come from `../health icons.svg` (no orbit rings or sparkles). `tools/extract.py` `extract_icons()` builds one SVG per icon (`assets/svg/icons/<name>-glyph.svg`) placed where D10's icons sat (same shapes, so a pure offset): `#shadow` (stays put), `#body > #core` (glow + shape + sheen) and `#body > #hl` (highlight). Glow and shadow are inline `feGaussianBlur` now (the 10 `*-shadow/glow.webp` rasters are deleted), so the glow moves with the body. `js/lib/loops.js` follows the reference film (artifact 8Zn8Hgc85QRnzLRf8zCzYi): heart double beat 1.05 s (scale 1 → 1.16 → 0.97 → 1.09 → 1), O₂ spin 5 s and glucose spin 7 s (on `#core`, so the highlight stays lit from the same side), BP squash on its base 1.8 s, lungs breathe from 10 % below the top 3.6 s. GSAP percentage keyframes; still paused off screen by `ambient.js`, off under reduced motion.
+
+**2. Headline descenders.** The gradient sub-headline (`.copy__sub`) is painted with `background-clip: text`, which only paints inside the element box; with line-height ≈ font-size the "p"/"g" descenders were cut ("simple language", "smart phone"). It now has `padding-bottom: 0.3em` cancelled by `margin-bottom: -0.3em`; `.copy` became a flex column so that negative margin can't collapse into the next line's `margin-top`. Every `.copy` child's `offsetTop` is unchanged (checked in all 10 copy blocks).
+
+**3. New D19.** Same photo; changes read off the new `Desktop - 19.svg`:
+- cards `#CDF4F3` with a `#CEFAF3` stroke (`--c-card`, new `--c-card-line`); no connector lines (`connectors-d19.svg` removed) and no Contact us CTA in the finale (the old build added one; the new frame has none).
+- Blood pressure moved to 1121.4,675.4 (267.2 wide); heart rate is 226.2 wide with a new trace (x 1096–1297); glucose is 154.7 tall (contents 3 px lower); breathing contents 1 px lower. `extract.py` finds cards by fill and names them by icon glow colour (the rings are gone). Card text tops updated in `ui.js` `CARDS`.
+- Icons in D19 are full size now (were 0.8×): `icons_d19` boxes come from the glow positions.
+- `t5-vitals.js` targets updated: `HR_WIN` [1096, 1297], `BR.c` 504.825, `BP` bars y 753.708 / 781.331 from x 1140.41. Checked at t5 0.795: the morph end points land on the charts within 1 px.
+- Mobile: the grid keeps cards 290 wide, so the two narrower cards keep their chart at its D19 width on the left, the icon keeps its gap to the right edge (`--r`), and the BP rows end where their bars end.
+
+**Checks:** 1440×900 and 375×812, forward through S1 and T5 into S9, `?reduced`; no console errors (only the browser's own `/favicon.ico` 404). Screenshots: `docs/shots/r1-finale-desktop-1440x900.jpg`, `r1-finale-cards-mobile-375.jpg`, `r1-chips-new-icons.jpg`.
+
+**Local server note:** the Claude app's launcher can't read iCloud Drive (`getcwd: Operation not permitted`), so `.claude/launch.json` stays in attach mode; start `python3 -m http.server 8080` from `site/` in a terminal.

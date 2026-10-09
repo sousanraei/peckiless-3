@@ -76,14 +76,13 @@ export function copyBlock({ head, sub = ['5 steps', 'in simple language'], order
 
 // ---------- Vital icons ----------
 
-// Shadow + glow rasters and the inline glyph SVG stacked in one box. The glyph's
-// moving part is [data-id="body"] (T3 loops); the shadow never moves.
-export function icon(name, box) {
+// One inline SVG per icon (drawings from `health icons.svg`): [data-id="shadow"]
+// never moves; [data-id="body"] (glow, body, highlight) is what the loops move.
+// extra: more inline style (e.g. --r, the gap to the card's right edge).
+export function icon(name, box, extra = '') {
   const ic = ASSETS.icons[name];
   return `
-    <div class="icon icon--${name} at" style="${at(box)}" aria-hidden="true">
-      <img class="icon__shadow" src="${ic.shadow}" alt="">
-      <img class="icon__glow" src="${ic.glow}" alt="">
+    <div class="icon icon--${name} at" style="${at(box)}${extra}" aria-hidden="true">
       ${svg(ic.glyph.replace('assets/svg/', ''), 'class="icon__glyph"')}
     </div>`;
 }
@@ -111,16 +110,16 @@ export function chip({ name, label, rect }) {
 // ---------- D19 vital cards (card-local px) ----------
 
 export const CARDS = [
-  { name: 'breathing-rate', title: 'Breathing rate', value: '13', unit: '/min', delta: '↑0.0', foot: 115.5 },
+  { name: 'breathing-rate', title: 'Breathing rate', value: '13', unit: '/min', delta: '↑0.0', foot: 116.5 },
   { name: 'heart-rate', title: 'Heart rate', value: '72', unit: 'bpm', delta: '↓2.0', foot: 111.3 },
   { name: 'blood-oxygen', title: 'Blood oxygen', value: '96%', foot: 113.5 },
   {
-    name: 'glucose', title: 'Glucose', value: '5.2', unit: 'mmol/L', delta: '↑5.0', foot: 115.5,
-    rows: [['Ref 3.9–5.6', '3.0', 98.6]],
+    name: 'glucose', title: 'Glucose', value: '5.2', unit: 'mmol/L', delta: '↑5.0', foot: 119.5,
+    rows: [['Ref 3.9–5.6', '3.0', 101.7]],
   },
   {
-    name: 'blood-pressure', title: 'Blood pressure', value: '115/78', unit: 'mmHg', delta: '↑0.0', foot: 115.3,
-    rows: [['Systolic', '115', 59.4], ['Diastolic', '78', 87.5]],
+    name: 'blood-pressure', title: 'Blood pressure', value: '115/78', unit: 'mmHg', delta: '↑0.0', foot: 115.8,
+    rows: [['Systolic', '115', 60.4], ['Diastolic', '78', 89]],
   },
 ];
 
@@ -134,7 +133,7 @@ export function card(c) {
     <article class="card card--${c.name} at" style="${at(box)}">
       <img class="card__chart" src="assets/svg/chart-${c.name}.svg" alt="">
       <h3 class="card__title">${c.title}</h3>
-      ${icon(c.name, [ib[0] - box[0], ib[1] - box[1], ib[2], ib[3]])}
+      ${icon(c.name, [ib[0] - box[0], ib[1] - box[1], ib[2], ib[3]], `;--r:${(box[2] - (ib[0] - box[0]) - ib[2]).toFixed(2)}`)}
       ${rows}
       <p class="card__foot" style="top:${c.foot}px">
         <span class="card__value">${c.value}</span>${c.unit ? `<span class="card__unit">${c.unit}</span>` : ''}

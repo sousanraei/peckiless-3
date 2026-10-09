@@ -60,7 +60,7 @@ portrait phones). Each module in `js/scenes/` exports `build(tl, ctx)`.
 | 11 | `s7-clean` | D17 | Step 4 Clean noises: raw RGB → detrend → POS → band-pass → BVP | 3.0 |
 | 12 | `s8-calc` | D18 | Step 5 Calculate: PSD peak 1.2 Hz = 72 BPM, HRV, SpO₂ 96 %, resp. 13/min | 2.0 (2.4 mobile) |
 | 13 | `t5-vitals` | D18 → D19 | The BVP wave leaves the panel and becomes the heart-rate card trace | 1.6 |
-| 14 | `s9-finale` | D19 | "5 vital signs measured": cards, icon loops and the Contact us CTA | 1.4 |
+| 14 | `s9-finale` | D19 | "5 vital signs measured": the five cards around her, icon loops | 1.4 |
 
 The signals in S7/S8 are synthetic but seeded and consistent (`js/lib/rppg.js`).
 

@@ -5,7 +5,7 @@ Reads the Figma exports `../../Desktop - N.svg` (never modified) and writes:
 
   assets/img/*.webp           photos, deduped, cropped to what the frames show
   assets/img/manifest.json    per-frame placement of every photo (frame px)
-  assets/svg/...              logo, vital icons (glyph / shadow / glow split),
+  assets/svg/...              logo, vital icons (from `health icons.svg`),
                               ROI boxes, scan line, swatches, beams, RGB diagram,
                               D19 card charts
   assets/palette.json         every colour used, with counts (feeds tokens.css)
@@ -19,14 +19,14 @@ Coordinate conventions
   * Files named *-dNN.svg use viewBox "0 0 1440 1024": overlay them on the frame
     1:1 (same box as the photo layer) and they line up exactly.
   * chart-*.svg are card-local: viewBox = the D19 card rect, origin at its corner.
-  * Icon files share one box per icon (see manifest "icons"), so glyph.svg,
-    shadow.webp and glow.webp stack exactly when given the same size/position.
+  * Icon files: viewBox = the icon's box in D10 frame px (manifest "icons");
+    D19 places the same file at manifest "icons_d19".
 """
 import base64, copy, hashlib, io, json, math, re, sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image
 
 SITE = Path(__file__).resolve().parent.parent
 SRC = SITE.parent
@@ -396,119 +396,105 @@ def group(id_, children, **attrs):
 # --------------------------------------------------------------------------
 # icons
 # --------------------------------------------------------------------------
-def hex_rgba(h, alpha):
-    h = h.lstrip('#')
-    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)) + (int(round(alpha * 255)),)
+# Icon drawings come from `health icons.svg` (Oct 2026 set: no rings or
+# sparkles; glow + shadow stay vector). Each icon is a run of top-level
+# elements: shadow <g filter> (stays put), glow <g filter>, radial body, white
+# overlay, highlight(s), and for the lungs a stem stroke. Named by glow colour.
+ICONS_SRC = SRC / 'health icons.svg'
+ICON_BY_GLOW = {'#0D834F': 'heart-rate', '#8EE6F2': 'blood-oxygen', '#F28CC0': 'blood-pressure',
+                '#B9A6F0': 'breathing-rate', '#ED7D1C': 'glucose'}
 
 
-def raster_layer(items, box, scale, path):
-    """Render blurred fills / thin strokes to a transparent WebP (Pillow, supersampled).
+def first_pt(d):
+    x, y = re.findall(r'-?[\d.]+', d)[:2]
+    return float(x), float(y)
 
-    items: list of dict(kind='fill'|'stroke', d, color, opacity, blur, width)."""
-    ss = 4
-    k = scale * ss
-    W, H = math.ceil((box[2] - box[0]) * k), math.ceil((box[3] - box[1]) * k)
-    acc = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    for it in items:
-        layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-        dr = ImageDraw.Draw(layer)
-        col = hex_rgba(it['color'], 1.0)
-        for sub in flatten(it['d'], steps=32):
-            pts = [((x - box[0]) * k, (y - box[1]) * k) for x, y in sub]
-            if it['kind'] == 'fill' and len(pts) > 2:
-                dr.polygon(pts, fill=col)
-            elif it['kind'] == 'stroke':
-                dr.line(pts, fill=col, width=max(1, round(it['width'] * k)), joint='curve')
-        if it.get('blur'):
-            layer = layer.filter(ImageFilter.GaussianBlur(it['blur'] * k))
-        if it['opacity'] < 1:
-            al = layer.getchannel('A').point(lambda v, o=it['opacity']: round(v * o))
-            layer.putalpha(al)
-        acc = Image.alpha_composite(acc, layer)
-    acc = acc.resize((W // ss, H // ss), Image.LANCZOS)
-    acc.save(path, 'WEBP', quality=90, method=6)
-    return acc.size
+
+def icon_set():
+    """name -> dict(shadow, glow, core, hl, body) from health icons.svg (its own coordinates)."""
+    root = ET.parse(ICONS_SRC).getroot()
+    kids = [e for e in root if e.tag != q('defs') and not (e.tag == q('rect') and a(e, 'fill') == 'white')]
+    runs, cur = [], None
+    for e in kids:
+        if e.tag == q('g') and a(e, 'filter') and float(a(e, 'opacity', 1)) < 0.4:
+            cur = [e]
+            runs.append(cur)
+        else:
+            cur.append(e)
+    out = {}
+    for run in runs:
+        shadow, glow = run[0], run[1]
+        name = ICON_BY_GLOW[glow.find(q('path')).attrib['fill']]
+        body = next(e for e in run if e.tag == q('path') and 'radial' in a(e, 'fill', ''))
+        # highlights: white paths after the overlay group; the rest moves as the body
+        hl = [e for e in run[2:] if e.tag == q('path') and a(e, 'fill') == 'white']
+        core = [e for e in run[1:] if e not in hl]
+        out[name] = dict(shadow=shadow, glow=glow, core=core, hl=hl, body=body)
+    return out, defs_of(root)
+
+
+def icon_box(ic, defs, dx=0.0, dy=0.0):
+    """Bbox of all of an icon's layers + its filter regions, offset by (dx, dy)."""
+    box = None
+    for e in [ic['shadow'], *ic['core'], *ic['hl']]:
+        box = union(box, el_bbox(e))
+    for g_ in (ic['shadow'], ic['glow']):
+        f = defs.find(f".//*[@id='{URL.search(g_.attrib['filter']).group(1)}']")
+        fx, fy = float(f.attrib['x']), float(f.attrib['y'])
+        box = union(box, [fx, fy, fx + float(f.attrib['width']), fy + float(f.attrib['height'])])
+    return [box[0] + dx, box[1] + dy, box[2] + dx, box[3] + dy]
 
 
 def extract_icons(manifest):
+    """Vital icons: one SVG per icon (#shadow stays put; #body moves, holding
+    #core = glow + body + overlay, and #hl = specular highlight), placed where
+    D10's icons sit. D19 uses the same drawings; record where each sits there."""
+    icons, idefs = icon_set()
     root = load(10)
-    defs = defs_of(root)
     kids = top_children(root)
-    blur = {f.attrib['id']: float(next(f.iter(q('feGaussianBlur'))).attrib['stdDeviation'])
-            for f in defs.iter(q('filter'))}
     chip_idx = [i for i, e in enumerate(kids) if e.tag == q('rect') and a(e, 'fill') == '#00816D']
     manifest['icons'] = {}
     (SVG / 'icons').mkdir(parents=True, exist_ok=True)
+    for old in (SVG / 'icons').glob('*.webp'):
+        old.unlink()  # pre-Oct 2026 rasterised shadow/glow layers
+    offsets = {}
     for ci, start in enumerate(chip_idx):
         end = chip_idx[ci + 1] if ci + 1 < len(chip_idx) else len(kids)
         chip = kids[start]
-        # chip rect, chip stroke rect, label path, then the icon
         els = kids[start + 3:end]
         ring = next(e for e in els if e.tag == q('path') and a(e, 'stroke-opacity'))
         name = ICON_BY_RING[ring.attrib['stroke']]
-        filt = [e for e in els if e.tag == q('g') and a(e, 'filter')]
-        ground, glow = filt[0], filt[1]
-        body = next(e for e in els if e.tag == q('path') and 'radial' in a(e, 'fill', ''))
-        bb = el_bbox(body)
-        glyph_body, sparkles = [], []
-        for e in els:
-            if e in (ground, glow, ring):
-                continue
-            eb = el_bbox(e)
-            inside = eb[0] >= bb[0] - 1 and eb[2] <= bb[2] + 1 and eb[1] >= bb[1] - 6 and eb[3] <= bb[3] + 1
-            (glyph_body if inside else sparkles).append(e)
-        # one shared box for all layers: elements + filter regions, padded
-        box = None
-        for e in els:
-            box = union(box, el_bbox(e))
-        for g_ in (ground, glow):
-            f = defs.find(f".//*[@id='{URL.search(g_.attrib['filter']).group(1)}']")
-            fx, fy = float(f.attrib['x']), float(f.attrib['y'])
-            box = union(box, [fx, fy, fx + float(f.attrib['width']), fy + float(f.attrib['height'])])
-        box = [math.floor(box[0]) - 1, math.floor(box[1]) - 1, math.ceil(box[2]) + 1, math.ceil(box[3]) + 1]
+        old_body = next(e for e in els if e.tag == q('path') and 'radial' in a(e, 'fill', ''))
+        ic = icons[name]
+        (ox, oy), (nx, ny) = first_pt(old_body.attrib['d']), first_pt(ic['body'].attrib['d'])
+        dx, dy = ox - nx, oy - ny  # same drawing, new file's coordinates -> D10 frame px
+        offsets[name] = (dx, dy)
+        b = icon_box(ic, idefs, dx, dy)
+        box = [math.floor(b[0]) - 1, math.floor(b[1]) - 1, math.ceil(b[2]) + 1, math.ceil(b[3]) + 1]
         w, h = box[2] - box[0], box[3] - box[1]
-        # glyph svg (crisp vector, no filters): #body moves, #sparkles twinkle
-        g_body = group('body', glyph_body)
-        g_body.attrib['style'] = 'transform-box: fill-box; transform-origin: 50% 50%'
-        g_sp = group('sparkles', sparkles)
-        emit(SVG / 'icons' / f'{name}-glyph.svg', [g_body, g_sp], defs, (box[0], box[1], w, h),
-             f'ic-{name}', title=f'{name} icon glyph')
-        # rasterised stationary layers (4x frame scale)
-        S = 4
-
-        def fill_items(g_, b):
-            p = g_.find(q('path'))
-            return dict(kind='fill', d=p.attrib['d'], color=p.attrib['fill'],
-                        opacity=float(g_.attrib.get('opacity', 1)), blur=b)
-        sh = [fill_items(ground, blur[URL.search(ground.attrib['filter']).group(1)]),
-              dict(kind='stroke', d=ring.attrib['d'], color=ring.attrib['stroke'],
-                   opacity=float(ring.attrib['stroke-opacity']), width=float(ring.attrib['stroke-width']))]
-        gl = [fill_items(glow, blur[URL.search(glow.attrib['filter']).group(1)])]
-        raster_layer(sh, box, S, SVG / 'icons' / f'{name}-shadow.webp')
-        raster_layer(gl, box, S, SVG / 'icons' / f'{name}-glow.webp')
+        g_body = group('body', [group('core', ic['core']), group('hl', ic['hl'])])
+        emit(SVG / 'icons' / f'{name}-glyph.svg', [group('shadow', [ic['shadow']]), g_body], idefs,
+             (box[0], box[1], w, h), f'ic-{name}', wrap_transform=f'translate({r2(dx)} {r2(dy)})',
+             title=f'{name} icon')
+        bb = el_bbox(ic['body'])
         cx, cy = float(chip.attrib['x']), float(chip.attrib['y'])
         manifest['icons'][name] = dict(
-            glyph=f'assets/svg/icons/{name}-glyph.svg', shadow=f'assets/svg/icons/{name}-shadow.webp',
-            glow=f'assets/svg/icons/{name}-glow.webp', box=[box[0], box[1], w, h],
-            box_in_chip=[r2(box[0] - cx), r2(box[1] - cy)], body_center=[r2((bb[0] + bb[2]) / 2), r2((bb[1] + bb[3]) / 2)],
-            ring=ring.attrib['stroke'], raster_scale=S)
-        print(f'  icons/{name}: box {w}x{h} at {box[0]},{box[1]}  body {len(glyph_body)} sparkles {len(sparkles)}')
-    # D19 uses the same drawings at a smaller scale; record where each sits there.
-    r19 = load(19)
-    k19 = top_children(r19)
+            glyph=f'assets/svg/icons/{name}-glyph.svg', box=[box[0], box[1], w, h],
+            box_in_chip=[r2(box[0] - cx), r2(box[1] - cy)],
+            body_center=[r2((bb[0] + bb[2]) / 2 + dx), r2((bb[1] + bb[3]) / 2 + dy)])
+        print(f'  icons/{name}: box {w}x{h} at {box[0]},{box[1]}')
+    # D19 (Oct 2026): the same drawings at full size, found by glow colour.
+    k19 = top_children(load(19))
     manifest['icons_d19'] = {}
     for e in k19:
-        if e.tag == q('path') and a(e, 'stroke-opacity') and a(e, 'stroke') in ICON_BY_RING:
-            name = ICON_BY_RING[e.attrib['stroke']]
-            rb = el_bbox(e)
-            rb10 = el_bbox(next(x for x in top_children(root) if x.tag == q('path')
-                                and a(x, 'stroke-opacity') and a(x, 'stroke') == e.attrib['stroke']))
-            s = (rb[2] - rb[0]) / (rb10[2] - rb10[0])
-            b = manifest['icons'][name]['box']
-            # map D10 box through the ring's offset/scale
-            nx = rb[0] + (b[0] - rb10[0]) * s
-            ny = rb[1] + (b[1] - rb10[1]) * s
-            manifest['icons_d19'][name] = dict(box=[r2(nx), r2(ny), r2(b[2] * s), r2(b[3] * s)], scale=r2(s))
+        p = e.find(q('path')) if e.tag == q('g') and a(e, 'filter') else None
+        if p is None or float(a(e, 'opacity', 1)) < 0.4 or a(p, 'fill') not in ICON_BY_GLOW:
+            continue
+        name = ICON_BY_GLOW[p.attrib['fill']]
+        (gx, gy), (nx, ny) = first_pt(p.attrib['d']), first_pt(icons[name]['glow'].find(q('path')).attrib['d'])
+        dx, dy = offsets[name]
+        b = manifest['icons'][name]['box']
+        manifest['icons_d19'][name] = dict(box=[r2(b[0] - dx + gx - nx), r2(b[1] - dy + gy - ny), b[2], b[3]], scale=1)
 
 
 # --------------------------------------------------------------------------
@@ -637,16 +623,17 @@ def d19_charts(manifest):
     root = load(19)
     defs = defs_of(root)
     kids = top_children(root)
-    cards = [e for e in kids if e.tag == q('rect') and a(e, 'fill') == '#CEFAF3']
+    cards = [e for e in kids if e.tag == q('rect') and a(e, 'rx') and a(e, 'fill') in ('#CEFAF3', '#CDF4F3')]
     card_names = {}
-    # name each card by the icon ring that sits inside it
-    rings = [e for e in kids if e.tag == q('path') and a(e, 'stroke-opacity') and a(e, 'stroke') in ICON_BY_RING]
+    # name each card by the icon glow that sits inside it
+    glows = [e for e in kids if e.tag == q('g') and a(e, 'filter') and e.find(q('path')) is not None
+             and a(e.find(q('path')), 'fill') in ICON_BY_GLOW]
     for c in cards:
         x, y, w, h = (float(c.attrib[k]) for k in ('x', 'y', 'width', 'height'))
-        for r in rings:
-            rb = el_bbox(r)
-            if x <= rb[0] <= x + w and y <= rb[1] <= y + h:
-                card_names[ICON_BY_RING[r.attrib['stroke']]] = [x, y, w, h]
+        for g_ in glows:
+            gb = el_bbox(g_)
+            if x <= gb[0] <= x + w and y <= gb[1] <= y + h:
+                card_names[ICON_BY_GLOW[g_.find(q('path')).attrib['fill']]] = [x, y, w, h]
     manifest['cards_d19'] = {k: [r2(v) for v in b] for k, b in card_names.items()}
 
     def clip_bbox(e):
@@ -685,9 +672,8 @@ def d19_charts(manifest):
                                                                        r2(cb[2] - cb[0]), r2(cb[3] - cb[1])],
                                                     parts=len(parts))
         print(f'  chart-{name}.svg parts {len(parts)}')
-    conn = [e for e in kids if e.tag == q('path') and (a(e, 'fill') == '#AE1D72' or a(e, 'stroke') == '#AE1D72')]
-    frame_svg('connectors-d19.svg', [group('connectors', [with_id(c, f'connector-{i}') for i, c in enumerate(conn)])],
-              defs, 'D19 card connector lines')
+    # The Oct 2026 D19 has no connector lines between the cards and the body.
+    (SVG / 'connectors-d19.svg').unlink(missing_ok=True)
 
 
 # --------------------------------------------------------------------------

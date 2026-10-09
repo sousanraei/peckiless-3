@@ -11,12 +11,12 @@
   --c-contact-ink: #14283f;   /* "Contact us" nav button text (all) */
   --c-plum: #681144;          /* eyebrow "CAMERA-BASED HEALTH INTELLIGENCE" (all) */
   --c-mint: #4de5a1;          /* logo, CTA fill, active step dot (all) */
-  --c-teal: #44b3a2;          /* ROI boxes, RGB box, D19 card stroke (D13–D19) */
+  --c-teal: #44b3a2;          /* ROI boxes, RGB box (D13–D18) */
   --c-chip: #00816d;          /* vital chips, G channel, scan-line base (D10, D12, D17) */
   --c-chip-ink: #fdfdfc;      /* chip label, step numbers (D10–D18) */
   --c-aqua-line: #88e6d7;     /* chip / tag / active pill stroke (D9–D18) */
   --c-scan-hot: #b4fff3;      /* scan-line highlight (D12) */
-  --c-magenta: #ae1d72;       /* gradient end, D19 connector lines (all) */
+  --c-magenta: #ae1d72;       /* gradient end */
   --c-chart: #ce73a8;         /* D19 card charts */
   --c-orange: #f59e0b;        /* light beams, RGB arrows (D16–D18) */
   --c-r: #ef4444;             /* R channel (D17–D18) */
@@ -27,7 +27,8 @@
   --c-sky: #d3e2f4;           /* soft-blue photo background, sampled from front.webp (D11) */
   --c-tag: #cefaf3;           /* hashtag pills, D19 cards (D9, D10, D19) */
   --c-tag-ink: #4d606c;       /* hashtag text (D9, D10) */
-  --c-card: #cefaf3;          /* D19 vital cards */
+  --c-card: #cdf4f3;          /* D19 vital cards (Oct 2026 D19) */
+  --c-card-line: #cefaf3;     /* D19 vital card stroke */
   --c-panel: #f3f3f3;         /* step pills, calculation panel (D11–D18) */
   --c-line: #d1dadf;          /* inactive pill stroke/dot, panel stroke, nav button stroke (all) */
   --c-muted: #8f9ea7;         /* inactive step-pill label (D11–D18) */

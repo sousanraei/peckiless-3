@@ -25,7 +25,6 @@
 //   0.06–0.78  morphs, staggered by 0.04; each card fades in just before its
 //              chart lands, its icon glyph pops, chart crossfades over 0.06
 //   0.5–0.8    S9 headline wipes in, sub-headline follows
-//   0.8–0.95   connector lines
 //   0.7 →      icon loops run (to the end of the film)
 // Reduced motion: nothing (static D18 → D19).
 import { h, svg, preloadSVG } from '../lib/dom.js';
@@ -60,7 +59,7 @@ const CH = Object.fromEntries(CARDS.map(({ name }) => {
 }));
 
 // Heart rate: the ECG polyline (M/H/L only), clipped to its window.
-const HR_WIN = [1099.66, 1354.33];
+const HR_WIN = [1096, 1297];
 const ECG = (() => {
   const d = CH['heart-rate'].el.querySelector('path').getAttribute('d');
   const pts = [];
@@ -89,7 +88,7 @@ function ecgTarget() {
 
 // Breathing rate: half-period cubics with evenly spaced control x, so x is
 // linear in t and y = c ∓ 3·a·t(1 − t) exactly.
-const BR = { x0: 528.615, x1: 787.385, half: 24.0595, c: 503.812, a: 9.624 };
+const BR = { x0: 528.615, x1: 787.385, half: 24.0595, c: 504.825, a: 9.624 };
 function breathTarget(n) {
   return Array.from({ length: n }, (_, i) => {
     const x = lerp(BR.x0, BR.x1, i / (n - 1));
@@ -108,7 +107,7 @@ const O2 = [[362.842, 681.359], [392.916, 681.359], [392.916, 685.368], [421.787
 const O2_W = 2.406;
 
 // Blood pressure: pink fills (round ends, 4.81 tall) of the two bars.
-const BP = [{ y: 813.383, x: [822.386, 1010.05] }, { y: 841.453, x: [822.386, 941.079] }];
+const BP = [{ y: 753.708, x: [1140.41, 1328.07] }, { y: 781.331, x: [1140.41, 1259.1] }];
 const BP_W = 4.812;
 
 // Glucose: bars as [x, y, w, h] from the chart's rects.
@@ -317,7 +316,6 @@ export function link(tl, ctx) {
 
   wipeIn(tl, headLines(s9), p(0.5), { duration: 0.22 * d, stagger: 0.05 * d });
   tl.fromTo(s9.querySelector('.copy__sub'), { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.18 * d, ease: 'power2.out' }, p(0.62));
-  tl.fromTo(s9.querySelector('.connectors'), { opacity: 0 }, { opacity: 1, duration: 0.15 * d, ease: 'power1.out' }, p(0.8));
 
   // Cards: each settles just before its chart lands; the chart image takes
   // over from the morph in a crossfade.

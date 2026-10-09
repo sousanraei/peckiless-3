@@ -242,33 +242,33 @@
    "cell_step": 28,
    "note": "D18 repeats this diagram (arrow outlines differ by <0.01px)"
   },
-  "chart-breathing-rate": {
+  "chart-glucose": {
    "card": [
-    513.4,
-    420.4,
-    289.2,
-    151.2
+    396.4,
+    756.4,
+    290.2,
+    154.71
    ],
    "chart_box_in_card": [
-    15.21,
-    67.37,
-    258.77,
-    32.08
+    18.85,
+    58.9,
+    254.23,
+    36.89
    ],
-   "parts": 1
+   "parts": 9
   },
   "chart-blood-pressure": {
    "card": [
-    804.4,
-    736.4,
-    290.2,
+    1121.4,
+    675.4,
+    267.2,
     151.2
    ],
    "chart_box_in_card": [
-    15.58,
-    74.58,
-    259.04,
-    32.88
+    16.6,
+    75.9,
+    234.0,
+    32.43
    ],
    "parts": 2
   },
@@ -287,33 +287,33 @@
    ],
    "parts": 17
   },
-  "chart-glucose": {
-   "card": [
-    396.4,
-    756.4,
-    290.2,
-    150.77
-   ],
-   "chart_box_in_card": [
-    17.99,
-    55.75,
-    254.23,
-    36.89
-   ],
-   "parts": 9
-  },
   "chart-heart-rate": {
    "card": [
     1083.4,
     511.4,
-    287.2,
-    149.15
+    226.21,
+    149.21
    ],
    "chart_box_in_card": [
-    16.26,
-    65.25,
-    254.67,
-    31.73
+    11.73,
+    66.81,
+    202.75,
+    24.75
+   ],
+   "parts": 1
+  },
+  "chart-breathing-rate": {
+   "card": [
+    513.4,
+    420.4,
+    289.2,
+    151.2
+   ],
+   "chart_box_in_card": [
+    15.21,
+    68.38,
+    258.77,
+    32.08
    ],
    "parts": 1
   }
@@ -512,168 +512,148 @@
  "icons": {
   "heart-rate": {
    "glyph": "assets/svg/icons/heart-rate-glyph.svg",
-   "shadow": "assets/svg/icons/heart-rate-shadow.webp",
-   "glow": "assets/svg/icons/heart-rate-glow.webp",
    "box": [
-    251,
-    661,
-    58,
-    58
+    258,
+    665,
+    51,
+    54
    ],
    "box_in_chip": [
-    170.5,
-    14.5
+    177.5,
+    18.5
    ],
    "body_center": [
     283.29,
     687.83
-   ],
-   "ring": "#22BFA6",
-   "raster_scale": 4
+   ]
   },
   "blood-oxygen": {
    "glyph": "assets/svg/icons/blood-oxygen-glyph.svg",
-   "shadow": "assets/svg/icons/blood-oxygen-shadow.webp",
-   "glow": "assets/svg/icons/blood-oxygen-glow.webp",
    "box": [
-    564,
-    659,
-    59,
-    58
+    569,
+    662,
+    54,
+    55
    ],
    "box_in_chip": [
-    209.0,
-    15.5
+    214.0,
+    18.5
    ],
    "body_center": [
     596.0,
     685.4
-   ],
-   "ring": "#4DB6E6",
-   "raster_scale": 4
+   ]
   },
   "blood-pressure": {
    "glyph": "assets/svg/icons/blood-pressure-glyph.svg",
-   "shadow": "assets/svg/icons/blood-pressure-shadow.webp",
-   "glow": "assets/svg/icons/blood-pressure-glow.webp",
    "box": [
-    314,
+    321,
     752,
-    57,
+    50,
     59
    ],
    "box_in_chip": [
-    233.5,
+    240.5,
     10.5
    ],
    "body_center": [
     346.0,
     778.0
-   ],
-   "ring": "#D44A9B",
-   "raster_scale": 4
+   ]
   },
   "breathing-rate": {
    "glyph": "assets/svg/icons/breathing-rate-glyph.svg",
-   "shadow": "assets/svg/icons/breathing-rate-shadow.webp",
-   "glow": "assets/svg/icons/breathing-rate-glow.webp",
    "box": [
-    648,
-    753,
-    57,
-    58
+    656,
+    754,
+    48,
+    57
    ],
    "box_in_chip": [
-    222.5,
-    11.5
+    230.5,
+    12.5
    ],
    "body_center": [
     680.0,
     778.65
-   ],
-   "ring": "#9152BC",
-   "raster_scale": 4
+   ]
   },
   "glucose": {
    "glyph": "assets/svg/icons/glucose-glyph.svg",
-   "shadow": "assets/svg/icons/glucose-shadow.webp",
-   "glow": "assets/svg/icons/glucose-glow.webp",
    "box": [
-    292,
+    298,
     849,
-    58,
+    52,
     60
    ],
    "box_in_chip": [
-    211.5,
+    217.5,
     9.5
    ],
    "body_center": [
     324.0,
     876.01
-   ],
-   "ring": "#BEA1D9",
-   "raster_scale": 4
+   ]
   }
  },
  "icons_d19": {
-  "breathing-rate": {
+  "glucose": {
    "box": [
-    742.85,
-    429.6,
-    45.71,
-    46.51
+    624.66,
+    763.06,
+    52,
+    60
    ],
-   "scale": 0.8
+   "scale": 1
   },
   "blood-pressure": {
    "box": [
-    1034.86,
-    744.81,
-    45.71,
-    47.32
+    1328.59,
+    682.13,
+    50,
+    59
    ],
-   "scale": 0.8
+   "scale": 1
   },
   "blood-oxygen": {
    "box": [
-    576.97,
-    597.62,
-    47.32,
-    46.52
+    573.61,
+    595.41,
+    54,
+    55
    ],
-   "scale": 0.8
-  },
-  "glucose": {
-   "box": [
-    626.85,
-    764.01,
-    46.51,
-    48.12
-   ],
-   "scale": 0.8
+   "scale": 1
   },
   "heart-rate": {
    "box": [
-    1311.26,
-    520.26,
-    46.01,
-    46.01
+    1248.85,
+    518.75,
+    51,
+    54
    ],
-   "scale": 0.79
+   "scale": 1
+  },
+  "breathing-rate": {
+   "box": [
+    743.95,
+    430.99,
+    48,
+    57
+   ],
+   "scale": 1
   }
  },
  "cards_d19": {
-  "breathing-rate": [
-   513.4,
-   420.4,
-   289.2,
-   151.2
+  "glucose": [
+   396.4,
+   756.4,
+   290.2,
+   154.71
   ],
   "blood-pressure": [
-   804.4,
-   736.4,
-   290.2,
+   1121.4,
+   675.4,
+   267.2,
    151.2
   ],
   "blood-oxygen": [
@@ -682,17 +662,17 @@
    290.32,
    150.77
   ],
-  "glucose": [
-   396.4,
-   756.4,
-   290.2,
-   150.77
-  ],
   "heart-rate": [
    1083.4,
    511.4,
-   287.2,
-   149.15
+   226.21,
+   149.21
+  ],
+  "breathing-rate": [
+   513.4,
+   420.4,
+   289.2,
+   151.2
   ]
  }
 }

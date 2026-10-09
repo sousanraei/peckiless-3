@@ -34,6 +34,9 @@
 
 /* ---------- Copy block: eyebrow + headline + gradient sub-headline ---------- */
 .copy { position: absolute; left: 80px; top: 150.26px; width: 1000px; }
+/* Flex column so the sub-headline's descender padding (below) can be cancelled
+   with a negative margin without collapsing into its neighbour's margin. */
+.copy { display: flex; flex-direction: column; }
 .copy p, .copy h1, .copy h2 { margin: 0; }
 .copy__eyebrow {
   font: 710 12.21px/15px var(--f-body);
@@ -57,6 +60,11 @@
   background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
+  /* background-clip: text only paints inside the box, and the line-height is
+     tighter than the glyphs, so "p"/"g" descenders were cut off. Grow the
+     painted box downwards without moving anything. */
+  padding-bottom: 0.3em;
+  margin-bottom: -0.3em !important;
 }
 .copy__h + .copy__sub, .copy__sub + .copy__h { margin-top: 7px !important; }
 /* Reflow glides (S2 → S3, D14 → D15): --shift is measured, --k is scrubbed
@@ -142,7 +150,7 @@
   white-space: nowrap;
 }
 
-/* Icon stack: stationary shadow + glow, glyph on top (T3 animates its body). */
+/* Icon: one inline SVG; lib/loops.js moves its body, the shadow stays put. */
 .icon > * { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
 
 /* ---------- Step pills (shared, D11–D18) ---------- */
@@ -274,7 +282,7 @@
 .card {
   box-sizing: border-box;
   margin: 0;
-  border: 0.8px solid var(--c-teal);
+  border: 0.8px solid var(--c-card-line);
   border-radius: var(--radius-card);
   background: var(--c-card);
   color: var(--c-navy);
@@ -412,8 +420,14 @@
     gap: 8px;
     justify-items: start;
   }
-  .cards .connectors { display: none; }
   .card.at { width: 290px; height: 151px; zoom: var(--card-zoom, 0.55); }
+  /* Cards narrower than 290 in D19 (heart rate, blood pressure): the grid
+     keeps them 290 wide, so the chart keeps its D19 width at the left (under
+     the title), the icon keeps its gap to the right edge and the blood-
+     pressure rows end where their bars end. */
+  .card__chart { width: calc(var(--w) * 1px); }
+  .card .icon.at { left: auto; right: calc(var(--r) * 1px); }
+  .card--blood-pressure .card__row { right: calc((290 - var(--w)) * 1px + 16px); }
   /* The zoom takes the small card text to ~6px on a phone (T15); counter-
      scale it to ~8–9px. Titles and values are big enough already. */
   .card { --ct: clamp(1, calc(0.8 / var(--card-zoom, 1)), 1.45); }
